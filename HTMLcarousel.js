@@ -25,11 +25,7 @@ Carousel.prototype = {
 		smaller: null,
 		buffer: -30,
 		fade: 0.7,
-<<<<<<< HEAD
 		autostyle: true
-=======
-		autostyle: false
->>>>>>> 8243f0ae7a46c831b920f5f704f89f8e1b7d3a75
 	},
 	active: true,
 	arrows: {

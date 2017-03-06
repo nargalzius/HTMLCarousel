@@ -122,20 +122,12 @@ function init(){
 		margin: -20
 	};
 	slideshow.screenflow = {
-<<<<<<< HEAD
 		width: 500,
 		height: 500,
 		buffer: -100,
 		smaller: 0.7,
 		fade: 0.7,
 		autostyle: false
-=======
-		width: 280,
-		height: 280,
-		buffer: -100,
-		smaller: 0.7,
-		fade: 0.7
->>>>>>> 8243f0ae7a46c831b920f5f704f89f8e1b7d3a75
 	};
 
 	slideshow.callback_show = function() {
