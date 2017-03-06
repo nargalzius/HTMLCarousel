@@ -52,6 +52,35 @@ body {
   margin: 20px auto;
   z-index: 1;
   border: 1px solid #666; }
+  #slideshow .slide {
+    background-size: cover;
+    bottom: 0;
+    opacity: 1; }
+    #slideshow .slide.hide {
+      opacity: 0; }
+    #slideshow .slide.tertiary {
+      width: 50px;
+      height: 50px;
+      bottom: 0;
+      opacity: 0; }
+      #slideshow .slide.tertiary.left {
+        left: 30px; }
+      #slideshow .slide.tertiary.right {
+        left: 850px; }
+    #slideshow .slide.center {
+      width: 300px;
+      height: 300px;
+      left: 50%;
+      margin-left: -150px; }
+    #slideshow .slide.secondary {
+      width: 200px;
+      height: 200px;
+      bottom: 0;
+      opacity: .3; }
+      #slideshow .slide.secondary.left {
+        left: 10%; }
+      #slideshow .slide.secondary.right {
+        left: 68%; }
 
 #triggers {
   text-align: center; }
