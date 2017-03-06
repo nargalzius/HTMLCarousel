@@ -42,7 +42,8 @@ table {
 
 html,
 body {
-  font-family: sans-serif; }
+  font-family: sans-serif;
+  -webkit-tap-highlight-color: transparent; }
 
 #slideshow {
   width: 900px;

@@ -84,11 +84,17 @@ var images = [
 ];
 
 var imgarray = [];
+var infarray = [];
 var slideshow = new Carousel();
 var resetVars;
     
 for(var p in images) {
     imgarray.push(images[p].src);
+
+    var tobj = {};
+        tobj.title = images[p].title;
+        tobj.url = images[p].url;
+    infarray.push(tobj);
 }
 
 $( document ).ready(init);
@@ -110,7 +116,7 @@ function init(){
     slideshow.debug = false;
     slideshow.mode = 1;
     slideshow.loop = true;
-    slideshow.clickable = false;
+    slideshow.clickable = true;
     slideshow.arrows = {
         size: 100,
         margin: -20
@@ -124,15 +130,36 @@ function init(){
     };
     
     slideshow.callback_show = function() {
-        console.log( images[slideshow.currentSlide].title );
+        console.log( slideshow.currentInfo );
     };
 
     slideshow.callback_click = function() {
-        window.open( images[slideshow.currentSlide].url );
+        window.open( slideshow.currentInfo.url );
     };
 
     // slideshow.slide = 'contain';
-    slideshow.init(document.getElementById('slideshow'), imgarray);
+    slideshow.init(document.getElementById('slideshow'), imgarray, infarray);
+
+    $('i').click(function(){
+
+        switch($(this).attr('id')) {
+            case "mode0":
+                slideshow.mode = 0;
+            break;
+            case "mode1":
+                slideshow.mode = 1;
+            break;
+            case "mode2":
+                slideshow.mode = 2;
+            break;
+            case "mode3":
+                slideshow.mode = 3;
+            break;
+        }
+
+        quicReset();
+    })
+
 }
 
 
@@ -140,4 +167,8 @@ function init(){
 
 function quicReset() {
     slideshow.destroy();
+
+    setTimeout(function(){
+        slideshow.init(document.getElementById('slideshow'), imgarray, infarray);
+    }, 500);
 }

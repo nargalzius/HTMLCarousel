@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.1
+ *  1.2
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -16,6 +16,7 @@ Carousel.prototype = {
 	debug: true,
 	loop: true,
 	currentSlide: 0,
+	currentInfo: null,
 	clickable: true,
 	mode: 1,
 	screenflow: {
@@ -56,8 +57,8 @@ Carousel.prototype = {
 	dom_spin: null,
 
 	// control_registry: [],
-	images: [],
-	imageinfo: [],
+	imageData: [],
+	imageInfo: [],
 	dom_index: {
 		prev: null,
 		now: null,
@@ -109,18 +110,23 @@ Carousel.prototype = {
 	},
 
 	init: function(obj, imgarray, infoarray) {
+	// init: function(obj, imgarray) {
 
 		var self = this;
+		
+		for(var p in imgarray) {
+			this.imageData.push(imgarray[p]);
+		}
 
-		this.images = imgarray;
-
-		if(this.mode === 3 && this.images.length < 3) {
-			alert('You need at least three images for mode 3. Switching to default (1)');
+		if(this.mode === 3 && this.imageData.length < 3) {
+			alert('You need at least three imageData for mode 3. Switching to default (1)');
 			this.mode = 1;
 		}
 
 		if(infoarray) {
-			this.imageinfo = infoarray;
+			for(var q in infoarray) {
+				this.imageInfo.push(infoarray[q]);
+			}
 		}
 
 		if(this.ismobile === null) { this.checkForMobile(); }
@@ -135,10 +141,20 @@ Carousel.prototype = {
 			this.swipedetect(this.dom_container, function(e){
 				switch(e) {
 					case "left":
-						self.nextSlide()
+						self.nextSlide();
 					break;
 					case "right":
 						self.prevSlide();
+					break;
+					case "up":
+						if(self.mode === 0) {
+							self.nextSlide();
+						}
+					break;
+					case "down":
+						if(self.mode === 0) {
+							self.prevSlide();
+						}
 					break;
 				}
 			});
@@ -192,7 +208,6 @@ Carousel.prototype = {
 		this.dom_prev.onclick = function() {
 			self.prevSlide();
 		};
-		this.setVendor(this.dom_prev, 'Transition', 'all 0.3s ease-In');
 		this.dom_container.appendChild(this.dom_prev);
 
 		this.dom_template_next();
@@ -206,36 +221,47 @@ Carousel.prototype = {
 		this.dom_next.onclick = function() {
 			self.nextSlide();
 		};
-		this.setVendor(this.dom_next, 'Transition', 'all 0.3s ease-In');
 		this.dom_container.appendChild(this.dom_next);
 
-		this.dom_net = document.createElement('div');
-		this.dom_net.style.position = 'absolute';
+		// this.dom_net = document.createElement('div');
+		// this.dom_net.style.position = 'absolute';
 		// this.dom_net.style.display = 'block';
-		this.dom_net.style.display = 'none';
-		this.dom_net.style.width = '100%';
-		this.dom_net.style.height = '100%';
-		this.dom_net.style.top = '0';
-		this.dom_net.style.left = '0';
-		this.dom_net.style.backgroundColor = this.colors_net;
-		this.dom_net.style.opacity = 0;
-		this.dom_net.style.zIndex = this.zindex + 7;
-		this.setVendor(this.dom_net, 'Transition', 'all 0.3s ease-In');
-		this.dom_container.appendChild(this.dom_net);
-
+		// this.dom_net.style.display = 'none';
+		// this.dom_net.style.width = '100%';
+		// this.dom_net.style.height = '100%';
+		// this.dom_net.style.top = '0';
+		// this.dom_net.style.left = '0';
+		// this.dom_net.style.backgroundColor = this.colors_net;
+		// this.dom_net.style.opacity = 0;
+		// this.dom_net.style.zIndex = this.zindex + 7;
+		// this.dom_container.appendChild(this.dom_net);
 
 		this.dom_template_spin();
 		this.addClass(this.dom_spin, 'spin');
 		this.dom_spin.style.zIndex = this.zindex + 8;
 		this.dom_spin.style.display = 'block';
-		this.dom_spin.style.opacity = 1;
+		this.dom_spin.style.opacity = 0;
 		this.dom_spin.style.visibility = 'visible';
 		this.dom_spin.style.position = 'absolute';
-		this.setVendor(this.dom_spin, 'Transition', 'all 0.3s ease-In');
 		this.dom_container.appendChild(this.dom_spin);
 		this.reflow();
 
-		this.loadSlide(0);
+
+		setTimeout(function(){
+			self.setVendor(self.dom_prev, 'Transition', 'all 0.3s ease-In');
+			self.setVendor(self.dom_next, 'Transition', 'all 0.3s ease-In');
+			self.setVendor(self.dom_spin, 'Transition', 'all 0.3s ease-In');
+
+			// self.setVendor(self.dom_net, 'Transition', 'all 0.3s ease-In');			
+
+			self.setVendor(self.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
+			self.setVendor(self.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
+			self.setVendor(self.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
+
+			self.active = false;
+			self.wait(1);
+			self.loadSlide(0);
+		}, 600);
 	},
 
 	prevSlide: function() {
@@ -245,7 +271,7 @@ Carousel.prototype = {
 			this.currentSlide--;
 
 			if(this.currentSlide < 0) {
-				this.currentSlide = this.images.length-1;
+				this.currentSlide = this.imageData.length-1;
 			}
 
 			this.trace(this.currentSlide);
@@ -258,7 +284,7 @@ Carousel.prototype = {
 			this.loadSlide(0, 1);
 			this.currentSlide++;
 
-			if( this.currentSlide > this.images.length - 1) {
+			if( this.currentSlide > this.imageData.length - 1) {
 				this.currentSlide = 0;
 			}
 
@@ -280,7 +306,7 @@ Carousel.prototype = {
 				this.toggle(this.dom_prev, 1);
 			}
 
-			if( this.currentSlide === ( this.images.length - 1 ) ) {
+			if( this.currentSlide === ( this.imageData.length - 1 ) ) {
 				this.toggle(this.dom_next, 0);
 			} else {
 				this.toggle(this.dom_next, 1);
@@ -306,40 +332,52 @@ Carousel.prototype = {
 			this.trace('first time');
 
 			// SET IMAGE ARRAY TO HAVE PREVOIUS AS 0, CURRENT AS 1, AND NEXT AS 2
-			this.arrayRotate(this.images, true);
+			this.arrayRotate(this.imageData, true);
 
-			if(this.imageinfo.length) {
-				this.arrayRotate(this.imageinfo, true);
+			if(this.imageInfo.length) {
+				this.arrayRotate(this.imageInfo, true);
 			}
 
 			if(this.mode === 3) {
 
 				limage = [
-					this.images[0],
-					this.images[1],
-					this.images[2]
+					this.imageData[0],
+					this.imageData[1],
+					this.imageData[2]
 				];
 
 			} else {
-				limage = this.images[1];
+				limage = this.imageData[1];
 			}
 
 		} else {
 			this.trace('no longer first');
 
 			if(dir === 'left') {
-				this.arrayRotate(this.images, true);
+				this.arrayRotate(this.imageData, true);
+				
+				if(this.imageInfo.length) {
+					this.arrayRotate(this.imageInfo, true);
+				}
 			} else {
-				this.arrayRotate(this.images);
+				this.arrayRotate(this.imageData);
+
+				if(this.imageInfo.length) {
+					this.arrayRotate(this.imageInfo);
+				}
 			}
 
 			if(this.mode === 3) {
-
-				limage = this.images[(dir === 'left') ? 0 : 2];
-
+				num = (dir === 'left') ? 0 : 2;
 			} else {
-				limage = this.images[1];
+				num = 1;
 			}
+
+			limage = this.imageData[num];
+		}
+
+		if(this.imageInfo.length) {
+			this.currentInfo = this.imageInfo[1];
 		}
 
 		this.load(limage, function(){
@@ -370,260 +408,48 @@ Carousel.prototype = {
 
 			var slide = document.createElement('div');
 				slide.style.position = 'absolute';
-				slide.style.backgroundImage = 'url('+self.images[num]+')';
+				slide.style.backgroundImage = 'url('+self.imageData[num]+')';
 				slide.style.backgroundRepeat = 'no-repeat';
 				slide.style.backgroundPosition = 'center';
 				slide.style.zIndex = self.zindex + 5;
 				slide.style.opacity = 0;
 				slide.style.backgroundSize = self.slide;
 
-				if(self.mode !== 3) {
-					slide.style.width = '100%';
-					slide.style.height = '100%';
-				}
+			if(self.mode !== 3) {
+				slide.style.width = '100%';
+				slide.style.height = '100%';
+			}
 
-				self.setVendor(slide, 'Transition', 'all 0.3s ease-In');
-				parent.appendChild(slide);
+			self.setVendor(slide, 'Transition', 'all 0.3s ease-In');
+			parent.appendChild(slide);
 
-				if(!slide_next && self.mode !== 3) {
+			if(!slide_next && self.mode !== 3) {
 
-					setTimeout(function(){
-						slide.style.left = 0;
+				setTimeout(function(){
+					slide.style.left = 0;
+					slide.style.opacity = 1;
+					self.dom_index.next = slide;
+
+					self.assignClicks();
+
+					self.active = true;
+				}, 50);
+			}
+
+			switch(self.mode) {
+				case 1:
+					// SLIDE
+
+					to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
+					from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
+
+					if(slide_next) {
 						slide.style.opacity = 1;
-						self.dom_index.next = slide;
-
-						self.assignClicks();
-
-						self.active = true;
-					}, 50);
-				}
-
-				switch(self.mode) {
-					case 1:
-						// SLIDE
-
-						to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
-						from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
-
-						if(slide_next) {
-							slide.style.opacity = 1;
-							slide.style.left = from + 'px';
-							setTimeout(function(){
-								slide.style.left = '0px';
-								slide_next.style.left = to + 'px';
-
-								setTimeout(function(){
-									slide_next.parentNode.removeChild(slide_next);
-									self.dom_index.next = slide;
-
-									self.assignClicks();
-
-									self.active = true;
-								}, 500);
-							}, 200);
-						}
-					break;
-					case 2:
-						// REVEAL
-
-						to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
-						from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
-
-						if(slide_next) {
-							slide_next.style.zIndex = self.zindex + 5;
-							slide.style.zIndex = self.zindex + 4;
-							slide.style.opacity = 1;
+						slide.style.left = from + 'px';
+						setTimeout(function(){
 							slide.style.left = '0px';
+							slide_next.style.left = to + 'px';
 
-							setTimeout(function(){
-								slide_next.style.left = to + 'px';
-
-								setTimeout(function(){
-									slide_next.parentNode.removeChild(slide_next);
-									self.dom_index.next = slide;
-
-									self.assignClicks();
-
-									self.active = true;
-								}, 500);
-							}, 500);
-						}
-					break;
-					case 3:
-
-						// SCREENFLOW
-
-						mW = ( self.screenflow.width ) ? self.screenflow.width : self.dom_container.offsetHeight;
-						mH = ( self.screenflow.height ) ? self.screenflow.height : self.dom_container.offsetHeight;
-						x_center = ( self.dom_container.offsetWidth - mW ) / 2;
-						p_smaller = ( self.screenflow.smaller ) ? self.screenflow.smaller : 0.7;
-						p_xsmall = ( self.screenflow.smaller ) ? self.screenflow.smaller * self.screenflow.smaller : (0.7 * 0.7) ;
-
-						slide.style.width = mW + 'px';
-						slide.style.height = mH + 'px';
-
-
-						if(slide_prev || slide_now || slide_next) {
-
-							x_left = slide_prev.offsetLeft;
-							x_right = slide_next.offsetLeft;
-							xx_left = slide_prev.offsetLeft - mW*p_smaller;
-							xx_right = slide_next.offsetLeft + mW*p_smaller;
-
-							slide.style.width = mW + 'px';
-							slide.style.height = mH + 'px';
-							slide.style.opacity = 0;
-							self.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
-							parent.appendChild(slide);
-							slide.style.left = ( (dir === 'left') ? xx_left : xx_right ) + 'px';
-
-
-							// SHIFT EVERYTHING
-
-							setTimeout(function(){
-
-								if(dir === 'left') {
-									slide_next.style.left = xx_right + 'px';
-									slide_next.style.opacity = 0;
-									slide_next.style.zIndex = self.zindex + 3;
-									self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
-
-									slide_now.style.left = x_right + 'px';
-									slide_now.style.opacity = self.screenflow.fade;
-									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-
-									slide_prev.style.left = x_center + 'px';
-									slide_prev.style.opacity = 1;
-									self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
-
-									slide.style.left = x_left + 'px';
-									slide.style.opacity = self.screenflow.fade;
-									slide.style.zIndex = self.zindex + 3;
-									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
-
-									setTimeout(function(){
-										slide_prev.style.zIndex = self.zindex + 6;
-									}, 50);
-
-									setTimeout(function(){
-										slide_next.parentNode.removeChild(slide_next);
-
-										slide_now.style.zIndex = self.zindex + 4;
-										slide_prev.style.zIndex = self.zindex + 5;
-
-										self.dom_index.prev = slide;
-										self.dom_index.now = slide_prev;
-										self.dom_index.next = slide_now;
-
-										self.assignClicks();
-
-										self.active = true;
-									},500);
-
-								} else {
-									slide_prev.style.left = xx_left + 'px';
-									slide_prev.style.zIndex = self.zindex + 3;
-									self.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
-
-									slide_now.style.left = x_left + 'px';
-									slide_now.style.opacity = self.screenflow.fade;
-									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-
-									slide_next.style.left = x_center + 'px';
-									slide_next.style.opacity = 1;
-									self.setVendor(slide_next, 'Transform', 'scale(1.0)');
-
-									slide.style.left = x_right + 'px';
-									slide.style.opacity = self.screenflow.fade;
-									slide.style.zIndex = self.zindex + 3;
-									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
-
-									setTimeout(function(){
-										slide_next.style.zIndex = self.zindex + 6;
-									}, 50);
-
-									setTimeout(function(){
-										slide_prev.parentNode.removeChild(slide_prev);
-
-										slide_now.style.zIndex = self.zindex + 4;
-										slide_next.style.zIndex = self.zindex + 5;
-
-										self.dom_index.prev = slide_now;
-										self.dom_index.now = slide_next;
-										self.dom_index.next = slide;
-
-										self.assignClicks();
-
-										self.active = true;
-
-									},500);
-
-								}
-							}, 50);
-
-						} else {
-
-							var left = document.createElement('div');
-								left.style.position = 'absolute';
-								left.style.backgroundImage = 'url('+self.images[num-1]+')';
-								left.style.backgroundRepeat = 'no-repeat';
-								left.style.backgroundPosition = 'center';
-								left.style.zIndex = self.zindex + 4;
-								left.style.opacity = 0;
-								left.style.width = mW + 'px';
-								left.style.height = mH + 'px';
-								left.style.backgroundSize = self.slide;
-								self.setVendor(left, 'Transition', 'all 0.3s ease-In');
-								self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
-								parent.appendChild(left);
-
-							var right = document.createElement('div');
-								right.style.position = 'absolute';
-								right.style.backgroundImage = 'url('+self.images[num+1]+')';
-								right.style.backgroundRepeat = 'no-repeat';
-								right.style.backgroundPosition = 'center';
-								right.style.zIndex = self.zindex + 4;
-								right.style.opacity = 0;
-								right.style.width = mW + 'px';
-								right.style.height = mH + 'px';
-								right.style.backgroundSize = self.slide;
-								self.setVendor(right, 'Transition', 'all 0.3s ease-In');
-								self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
-								parent.appendChild(right);
-
-							x_left = x_center - ( left.offsetWidth + self.screenflow.buffer );
-							x_right = x_center + mW + self.screenflow.buffer;
-
-								left.style.left = x_left + 'px';
-								right.style.left = x_right + 'px';
-
-							slide.style.left = x_center + 'px';
-
-							setTimeout(function(){
-								slide.style.opacity = 1;
-								left.style.opacity = self.screenflow.fade;
-								right.style.opacity = self.screenflow.fade;
-								self.dom_index.now = slide;
-								self.dom_index.prev = left;
-								self.dom_index.next = right;
-
-								self.assignClicks();
-
-								self.active = true;
-
-							}, 50);
-						}
-
-					break;
-					default:
-						// FADE
-						if(slide_next) {
-
-							slide_next.style.zIndex = self.zindex + 4;
-
-							setTimeout(function(){
-								slide.style.opacity = 1;
-							}, 50);
 							setTimeout(function(){
 								slide_next.parentNode.removeChild(slide_next);
 								self.dom_index.next = slide;
@@ -632,8 +458,220 @@ Carousel.prototype = {
 
 								self.active = true;
 							}, 500);
-						}
-				}
+						}, 200);
+					}
+				break;
+				case 2:
+					// REVEAL
+
+					to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
+					from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
+
+					if(slide_next) {
+						slide_next.style.zIndex = self.zindex + 5;
+						slide.style.zIndex = self.zindex + 4;
+						slide.style.opacity = 1;
+						slide.style.left = '0px';
+
+						setTimeout(function(){
+							slide_next.style.left = to + 'px';
+
+							setTimeout(function(){
+								slide_next.parentNode.removeChild(slide_next);
+								self.dom_index.next = slide;
+
+								self.assignClicks();
+
+								self.active = true;
+							}, 500);
+						}, 500);
+					}
+				break;
+				case 3:
+
+					// SCREENFLOW
+
+					mW = ( self.screenflow.width ) ? self.screenflow.width : self.dom_container.offsetHeight;
+					mH = ( self.screenflow.height ) ? self.screenflow.height : self.dom_container.offsetHeight;
+					x_center = ( self.dom_container.offsetWidth - mW ) / 2;
+					p_smaller = ( self.screenflow.smaller ) ? self.screenflow.smaller : 0.7;
+					p_xsmall = ( self.screenflow.smaller ) ? self.screenflow.smaller * self.screenflow.smaller : (0.7 * 0.7) ;
+
+					slide.style.width = mW + 'px';
+					slide.style.height = mH + 'px';
+
+
+					if(slide_prev || slide_now || slide_next) {
+
+						x_left = slide_prev.offsetLeft;
+						x_right = slide_next.offsetLeft;
+						xx_left = slide_prev.offsetLeft - mW*p_smaller;
+						xx_right = slide_next.offsetLeft + mW*p_smaller;
+
+						slide.style.width = mW + 'px';
+						slide.style.height = mH + 'px';
+						slide.style.opacity = 0;
+						self.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
+						parent.appendChild(slide);
+						slide.style.left = ( (dir === 'left') ? xx_left : xx_right ) + 'px';
+
+
+						// SHIFT EVERYTHING
+
+						setTimeout(function(){
+
+							if(dir === 'left') {
+								slide_next.style.left = xx_right + 'px';
+								slide_next.style.opacity = 0;
+								slide_next.style.zIndex = self.zindex + 3;
+								self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
+
+								slide_now.style.left = x_right + 'px';
+								slide_now.style.opacity = self.screenflow.fade;
+								self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+
+								slide_prev.style.left = x_center + 'px';
+								slide_prev.style.opacity = 1;
+								self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
+
+								slide.style.left = x_left + 'px';
+								slide.style.opacity = self.screenflow.fade;
+								slide.style.zIndex = self.zindex + 3;
+								self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+
+								setTimeout(function(){
+									slide_prev.style.zIndex = self.zindex + 6;
+								}, 50);
+
+								setTimeout(function(){
+									slide_next.parentNode.removeChild(slide_next);
+
+									slide_now.style.zIndex = self.zindex + 4;
+									slide_prev.style.zIndex = self.zindex + 5;
+
+									self.dom_index.prev = slide;
+									self.dom_index.now = slide_prev;
+									self.dom_index.next = slide_now;
+
+									self.assignClicks();
+
+									self.active = true;
+								},500);
+
+							} else {
+								slide_prev.style.left = xx_left + 'px';
+								slide_prev.style.zIndex = self.zindex + 3;
+								self.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
+
+								slide_now.style.left = x_left + 'px';
+								slide_now.style.opacity = self.screenflow.fade;
+								self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+
+								slide_next.style.left = x_center + 'px';
+								slide_next.style.opacity = 1;
+								self.setVendor(slide_next, 'Transform', 'scale(1.0)');
+
+								slide.style.left = x_right + 'px';
+								slide.style.opacity = self.screenflow.fade;
+								slide.style.zIndex = self.zindex + 3;
+								self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+
+								setTimeout(function(){
+									slide_next.style.zIndex = self.zindex + 6;
+								}, 50);
+
+								setTimeout(function(){
+									slide_prev.parentNode.removeChild(slide_prev);
+
+									slide_now.style.zIndex = self.zindex + 4;
+									slide_next.style.zIndex = self.zindex + 5;
+
+									self.dom_index.prev = slide_now;
+									self.dom_index.now = slide_next;
+									self.dom_index.next = slide;
+
+									self.assignClicks();
+
+									self.active = true;
+
+								},500);
+
+							}
+						}, 50);
+
+					} else {
+
+						var left = document.createElement('div');
+							left.style.position = 'absolute';
+							left.style.backgroundImage = 'url('+self.imageData[num-1]+')';
+							left.style.backgroundRepeat = 'no-repeat';
+							left.style.backgroundPosition = 'center';
+							left.style.zIndex = self.zindex + 4;
+							left.style.opacity = 0;
+							left.style.width = mW + 'px';
+							left.style.height = mH + 'px';
+							left.style.backgroundSize = self.slide;
+							self.setVendor(left, 'Transition', 'all 0.3s ease-In');
+							self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
+							parent.appendChild(left);
+
+						var right = document.createElement('div');
+							right.style.position = 'absolute';
+							right.style.backgroundImage = 'url('+self.imageData[num+1]+')';
+							right.style.backgroundRepeat = 'no-repeat';
+							right.style.backgroundPosition = 'center';
+							right.style.zIndex = self.zindex + 4;
+							right.style.opacity = 0;
+							right.style.width = mW + 'px';
+							right.style.height = mH + 'px';
+							right.style.backgroundSize = self.slide;
+							self.setVendor(right, 'Transition', 'all 0.3s ease-In');
+							self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
+							parent.appendChild(right);
+
+						x_left = x_center - ( left.offsetWidth + self.screenflow.buffer );
+						x_right = x_center + mW + self.screenflow.buffer;
+
+							left.style.left = x_left + 'px';
+							right.style.left = x_right + 'px';
+
+						slide.style.left = x_center + 'px';
+
+						setTimeout(function(){
+							slide.style.opacity = 1;
+							left.style.opacity = self.screenflow.fade;
+							right.style.opacity = self.screenflow.fade;
+							self.dom_index.now = slide;
+							self.dom_index.prev = left;
+							self.dom_index.next = right;
+
+							self.assignClicks();
+
+							self.active = true;
+
+						}, 50);
+					}
+
+				break;
+				default:
+					// FADE
+					if(slide_next) {
+
+						slide_next.style.zIndex = self.zindex + 4;
+
+						setTimeout(function(){
+							slide.style.opacity = 1;
+						}, 50);
+						setTimeout(function(){
+							slide_next.parentNode.removeChild(slide_next);
+							self.dom_index.next = slide;
+
+							self.assignClicks();
+
+							self.active = true;
+						}, 500);
+					}
+			}
 			self.checkEdges();
 		});
 
@@ -647,7 +685,7 @@ Carousel.prototype = {
 		if(this.mode === 3) {
 			this.dom_index.prev.style.cursor = 'default';
 			this.dom_index.prev.onclick = function() {
-				if(self.loop || self.currentSlide !== 0) {
+				if(self.loop || self.currentSlide !== 0 && self.active) {
 					self.prevSlide();
 				}
 
@@ -655,7 +693,7 @@ Carousel.prototype = {
 
 			this.dom_index.next.style.cursor = 'default';
 			this.dom_index.next.onclick = function() {
-				if(self.loop || self.currentSlide !== self.images.length-1) {
+				if(self.loop || self.currentSlide !== self.imageData.length-1 && self.active) {
 					self.nextSlide();
 				}
 			};
@@ -664,7 +702,7 @@ Carousel.prototype = {
 				this.dom_index.now.style.cursor = 'pointer';
 			}
 			this.dom_index.now.onclick = function() {
-				if(self.clickable) {
+				if(self.clickable && self.active) {
 					self.callback_click();
 				}
 			};
@@ -673,7 +711,7 @@ Carousel.prototype = {
 				this.dom_index.next.style.cursor = 'pointer';
 			}
 			this.dom_index.next.onclick = function() {
-				if(self.clickable) {
+				if(self.clickable && self.active) {
 					self.callback_click();
 				}
 			};
@@ -705,24 +743,14 @@ Carousel.prototype = {
 
 	wait: function(bool) {
 
-		var self = this;
 		this.active = false;
 
 		if(bool) {
-			this.dom_spin.style.visibility = 'visible';
-
-			// this.dom_net.style.opacity = 0;
-			// this.dom_net.style.display = 'block';
-			// setTimeout(function(){
-			// 	self.dom_net.style.opacity = 1;
-			// }, 50);
+			this.toggle(this.dom_spin, 1);
+			// this.toggle(this.dom_net, 1);
 		} else {
-			self.dom_spin.style.visibility = 'hidden';
-
-			// this.dom_net.style.opacity = 0;
-			// setTimeout(function(){
-			// 	self.dom_net.style.display = 'none';
-			// }, 500);
+			this.toggle(this.dom_spin, 0);
+			// this.toggle(this.dom_net, 0);
 		}
 
 	},
@@ -879,9 +907,17 @@ Carousel.prototype = {
 	},
 
 	destroy: function() {
-		this.dom_container.innerHTML('');
-
+		this.dom_container.innerHTML = '';
 		this.dom_container = null;
+		this.dom_index = {
+			prev: null,
+			now: null,
+			next: null
+		};
+		this.currentSlide = 0;
+		this.currentInfo = null;
+		this.imageData = [];
+		this.imageInfo = [];
 		this.dom_slides = null;
 		this.dom_net = null;
 		this.dom_prev = null;
