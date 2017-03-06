@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.0
+ *  1.1
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -26,13 +26,12 @@ Carousel.prototype = {
 		fade: 0.7
 	},
 	active: true,
-	offset: 0,
 	arrows: {
 		size: 64,
 		margin: 0
 	},
 	slide: 'cover',
-
+	ismobile: null,
 	desktopAgents: [
 		'desktop'
 	],
@@ -52,7 +51,6 @@ Carousel.prototype = {
 	dom_container: null,
 	dom_slides: null,
 	dom_net: null,
-	dom_dots: null,
 	dom_prev: null,
 	dom_next: null,
 	dom_spin: null,
@@ -118,7 +116,7 @@ Carousel.prototype = {
 
 		if(this.mode === 3 && this.images.length < 3) {
 			alert('You need at least three images for mode 3. Switching to default (1)');
-			this.mode = 1;	
+			this.mode = 1;
 		}
 
 		if(infoarray) {
@@ -131,6 +129,19 @@ Carousel.prototype = {
 			this.dom_container = document.getElementById( obj.id );
 		} else {
 			this.dom_container = document.getElementById( obj );
+		}
+
+		if(this.ismobile) {
+			this.swipedetect(this.dom_container, function(e){
+				switch(e) {
+					case "left":
+						self.nextSlide()
+					break;
+					case "right":
+						self.prevSlide();
+					break;
+				}
+			});
 		}
 
 		var container_position = window.getComputedStyle(this.dom_container).getPropertyValue('position');
@@ -182,7 +193,7 @@ Carousel.prototype = {
 			self.prevSlide();
 		};
 		this.setVendor(this.dom_prev, 'Transition', 'all 0.3s ease-In');
-		this.dom_container.appendChild(this.dom_prev);	
+		this.dom_container.appendChild(this.dom_prev);
 
 		this.dom_template_next();
 		this.addClass(this.dom_next, 'cbtn');
@@ -211,7 +222,7 @@ Carousel.prototype = {
 		this.dom_net.style.zIndex = this.zindex + 7;
 		this.setVendor(this.dom_net, 'Transition', 'all 0.3s ease-In');
 		this.dom_container.appendChild(this.dom_net);
-		
+
 
 		this.dom_template_spin();
 		this.addClass(this.dom_spin, 'spin');
@@ -228,11 +239,11 @@ Carousel.prototype = {
 	},
 
 	prevSlide: function() {
-	
+
 		if(this.active) {
 			this.loadSlide(0, 0);
 			this.currentSlide--;
-			
+
 			if(this.currentSlide < 0) {
 				this.currentSlide = this.images.length-1;
 			}
@@ -240,13 +251,13 @@ Carousel.prototype = {
 			this.trace(this.currentSlide);
 		}
 	},
-	
+
 	nextSlide: function() {
 
 		if(this.active) {
 			this.loadSlide(0, 1);
 			this.currentSlide++;
-			
+
 			if( this.currentSlide > this.images.length - 1) {
 				this.currentSlide = 0;
 			}
@@ -293,7 +304,7 @@ Carousel.prototype = {
 
 		if(!this.dom_index.next) {
 			this.trace('first time');
-			
+
 			// SET IMAGE ARRAY TO HAVE PREVOIUS AS 0, CURRENT AS 1, AND NEXT AS 2
 			this.arrayRotate(this.images, true);
 
@@ -302,7 +313,7 @@ Carousel.prototype = {
 			}
 
 			if(this.mode === 3) {
-			
+
 				limage = [
 					this.images[0],
 					this.images[1],
@@ -323,9 +334,9 @@ Carousel.prototype = {
 			}
 
 			if(this.mode === 3) {
-				
+
 				limage = this.images[(dir === 'left') ? 0 : 2];
-				
+
 			} else {
 				limage = this.images[1];
 			}
@@ -382,13 +393,13 @@ Carousel.prototype = {
 						self.dom_index.next = slide;
 
 						self.assignClicks();
-						
+
 						self.active = true;
 					}, 50);
 				}
 
 				switch(self.mode) {
-					case 1: 
+					case 1:
 						// SLIDE
 
 						to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
@@ -409,7 +420,7 @@ Carousel.prototype = {
 
 									self.active = true;
 								}, 500);
-							}, 200);	
+							}, 200);
 						}
 					break;
 					case 2:
@@ -435,7 +446,7 @@ Carousel.prototype = {
 
 									self.active = true;
 								}, 500);
-							}, 500);	
+							}, 500);
 						}
 					break;
 					case 3:
@@ -458,7 +469,7 @@ Carousel.prototype = {
 							x_right = slide_next.offsetLeft;
 							xx_left = slide_prev.offsetLeft - mW*p_smaller;
 							xx_right = slide_next.offsetLeft + mW*p_smaller;
-							
+
 							slide.style.width = mW + 'px';
 							slide.style.height = mH + 'px';
 							slide.style.opacity = 0;
@@ -476,15 +487,15 @@ Carousel.prototype = {
 									slide_next.style.opacity = 0;
 									slide_next.style.zIndex = self.zindex + 3;
 									self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
-									
+
 									slide_now.style.left = x_right + 'px';
 									slide_now.style.opacity = self.screenflow.fade;
 									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-									
+
 									slide_prev.style.left = x_center + 'px';
 									slide_prev.style.opacity = 1;
 									self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
-									
+
 									slide.style.left = x_left + 'px';
 									slide.style.opacity = self.screenflow.fade;
 									slide.style.zIndex = self.zindex + 3;
@@ -495,7 +506,7 @@ Carousel.prototype = {
 									}, 50);
 
 									setTimeout(function(){
-										slide_next.parentNode.removeChild(slide_next);	
+										slide_next.parentNode.removeChild(slide_next);
 
 										slide_now.style.zIndex = self.zindex + 4;
 										slide_prev.style.zIndex = self.zindex + 5;
@@ -517,11 +528,11 @@ Carousel.prototype = {
 									slide_now.style.left = x_left + 'px';
 									slide_now.style.opacity = self.screenflow.fade;
 									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-									
+
 									slide_next.style.left = x_center + 'px';
 									slide_next.style.opacity = 1;
 									self.setVendor(slide_next, 'Transform', 'scale(1.0)');
-									
+
 									slide.style.left = x_right + 'px';
 									slide.style.opacity = self.screenflow.fade;
 									slide.style.zIndex = self.zindex + 3;
@@ -536,7 +547,7 @@ Carousel.prototype = {
 
 										slide_now.style.zIndex = self.zindex + 4;
 										slide_next.style.zIndex = self.zindex + 5;
-									
+
 										self.dom_index.prev = slide_now;
 										self.dom_index.now = slide_next;
 										self.dom_index.next = slide;
@@ -547,7 +558,7 @@ Carousel.prototype = {
 
 									},500);
 
-								}									
+								}
 							}, 50);
 
 						} else {
@@ -565,7 +576,7 @@ Carousel.prototype = {
 								self.setVendor(left, 'Transition', 'all 0.3s ease-In');
 								self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
 								parent.appendChild(left);
-								
+
 							var right = document.createElement('div');
 								right.style.position = 'absolute';
 								right.style.backgroundImage = 'url('+self.images[num+1]+')';
@@ -600,14 +611,14 @@ Carousel.prototype = {
 
 								self.active = true;
 
-							}, 50);	
+							}, 50);
 						}
 
 					break;
 					default:
 						// FADE
 						if(slide_next) {
-							
+
 							slide_next.style.zIndex = self.zindex + 4;
 
 							setTimeout(function(){
@@ -676,8 +687,8 @@ Carousel.prototype = {
 	callback_click: function() {
 		this.trace('callback_click');
 	},
-	
-	toggle: function(obj, bool) {		
+
+	toggle: function(obj, bool) {
 		if(bool) {
 			obj.style.opacity = 0;
 			obj.style.display = 'block';
@@ -702,7 +713,7 @@ Carousel.prototype = {
 
 			// this.dom_net.style.opacity = 0;
 			// this.dom_net.style.display = 'block';
-			// setTimeout(function(){		
+			// setTimeout(function(){
 			// 	self.dom_net.style.opacity = 1;
 			// }, 50);
 		} else {
@@ -817,6 +828,65 @@ Carousel.prototype = {
 		} else {
 			el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
 		}
+	},
+
+	swipedetect: function(el, callback){
+
+		var touchsurface = el;
+		var swipedir;
+		var startX;
+		var startY;
+		var distX;
+		var distY;
+		var dist;
+		var threshold = 150; //required min distance traveled to be considered swipe
+		var restraint = 100; // maximum distance allowed at the same time in perpendicular direction
+		var allowedTime = 300; // maximum time allowed to travel that distance
+		var elapsedTime;
+		var startTime;
+		var handleswipe = callback || function(swipedir){};
+
+		touchsurface.addEventListener('touchstart', function(e){
+			var touchobj = e.changedTouches[0];
+			swipedir = 'none';
+			dist = 0;
+			startX = touchobj.pageX;
+			startY = touchobj.pageY;
+			startTime = new Date().getTime(); // record time when finger first makes contact with surface
+			// e.preventDefault()
+		}, false);
+
+		touchsurface.addEventListener('touchmove', function(e){
+			e.preventDefault(); // prevent scrolling when inside DIV
+		}, false);
+
+		touchsurface.addEventListener('touchend', function(e){
+			var touchobj = e.changedTouches[0];
+			distX = touchobj.pageX - startX; // get horizontal dist traveled by finger while in contact with surface
+			distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
+			elapsedTime = new Date().getTime() - startTime; // get time elapsed
+			if (elapsedTime <= allowedTime){ // first condition for awipe met
+				if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint){ // 2nd condition for horizontal swipe met
+					swipedir = (distX < 0)? 'left' : 'right'; // if dist traveled is negative, it indicates left swipe
+				}
+				else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint){ // 2nd condition for vertical swipe met
+					swipedir = (distY < 0)? 'up' : 'down'; // if dist traveled is negative, it indicates up swipe
+				}
+			}
+			handleswipe(swipedir);
+			// e.preventDefault()
+		}, false);
+	},
+
+	destroy: function() {
+		this.dom_container.innerHTML('');
+
+		this.dom_container = null;
+		this.dom_slides = null;
+		this.dom_net = null;
+		this.dom_prev = null;
+		this.dom_next = null;
+		this.dom_spin = null;
 	}
 
 };

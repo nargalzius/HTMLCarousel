@@ -84,21 +84,37 @@ var images = [
 ];
 
 var imgarray = [];
+var slideshow = new Carousel();
+var resetVars;
     
 for(var p in images) {
     imgarray.push(images[p].src);
 }
 
-var slideshow = new Carousel();
+$( document ).ready(init);
+
+function init(){
+
+    resetVars = {
+        debug: slideshow.debug,
+        loop: slideshow.loop,
+        currentSlide: slideshow.currentSlide,
+        clickable: slideshow.clickable,
+        mode: slideshow.mode,
+        screenflow: slideshow.screenflow,
+        active: slideshow.active,
+        arrows: slideshow.arrows,
+        slide: slideshow.slide
+    };
+
     slideshow.debug = false;
+    slideshow.mode = 1;
     slideshow.loop = true;
     slideshow.clickable = false;
     slideshow.arrows = {
         size: 100,
         margin: -20
     };
-    slideshow.arrows.margin = -10;
-    slideshow.mode = 0;
     slideshow.screenflow = {
         width: 480,
         height: 480,
@@ -117,4 +133,12 @@ var slideshow = new Carousel();
 
     // slideshow.slide = 'contain';
     slideshow.init(document.getElementById('slideshow'), imgarray);
+}
+
+
+    
+
+function quicReset() {
+    slideshow.destroy();
+}
 

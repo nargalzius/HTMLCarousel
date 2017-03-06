@@ -51,3 +51,8 @@ body {
   margin: 20px auto;
   z-index: 1;
   border: 1px solid #666; }
+
+#triggers {
+  text-align: center; }
+  #triggers i {
+    margin: 10px; }
