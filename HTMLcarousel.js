@@ -24,7 +24,8 @@ Carousel.prototype = {
 		height: null,
 		smaller: null,
 		buffer: -30,
-		fade: 0.7
+		fade: 0.7,
+		autostyle: true
 	},
 	active: true,
 	arrows: {
@@ -407,33 +408,44 @@ Carousel.prototype = {
 			}
 
 			var slide = document.createElement('div');
+
+				slide.className = 'slide hide';
 				slide.style.position = 'absolute';
+				slide.style.zIndex = self.zindex + 5;
 				slide.style.backgroundImage = 'url('+self.imageData[num]+')';
 				slide.style.backgroundRepeat = 'no-repeat';
 				slide.style.backgroundPosition = 'center';
-				slide.style.zIndex = self.zindex + 5;
-				slide.style.opacity = 0;
-				slide.style.backgroundSize = self.slide;
-
-			if(self.mode !== 3) {
-				slide.style.width = '100%';
-				slide.style.height = '100%';
-			}
+				
+				if(self.screenflow.autostyle) {
+					slide.style.backgroundSize = self.slide;
+					slide.style.opacity = 0;
+				}
 
 			self.setVendor(slide, 'Transition', 'all 0.3s ease-In');
 			parent.appendChild(slide);
 
-			if(!slide_next && self.mode !== 3) {
+			if(self.mode !== 3) {
+				slide.style.width = '100%';
+				slide.style.height = '100%';
 
-				setTimeout(function(){
-					slide.style.left = 0;
-					slide.style.opacity = 1;
-					self.dom_index.next = slide;
+				if(!slide_next) {
+					setTimeout(function(){
+						slide.style.left = 0;
+						slide.style.opacity = 1;
+						self.dom_index.next = slide;
 
-					self.assignClicks();
+						self.assignClicks();
 
-					self.active = true;
-				}, 50);
+						self.active = true;
+					}, 50);
+				}
+			} else {
+				if(!slide_next) {
+					self.addClass(slide, 'center');
+				} else {
+					self.addClass(slide, 'hide');
+					self.addClass(slide, 'tertiary');
+				}
 			}
 
 			switch(self.mode) {
@@ -497,8 +509,11 @@ Carousel.prototype = {
 					p_smaller = ( self.screenflow.smaller ) ? self.screenflow.smaller : 0.7;
 					p_xsmall = ( self.screenflow.smaller ) ? self.screenflow.smaller * self.screenflow.smaller : (0.7 * 0.7) ;
 
-					slide.style.width = mW + 'px';
-					slide.style.height = mH + 'px';
+
+					if(self.screenflow.autostyle) {
+						slide.style.width = mW + 'px';
+						slide.style.height = mH + 'px';
+					}
 
 
 					if(slide_prev || slide_now || slide_next) {
@@ -508,36 +523,65 @@ Carousel.prototype = {
 						xx_left = slide_prev.offsetLeft - mW*p_smaller;
 						xx_right = slide_next.offsetLeft + mW*p_smaller;
 
-						slide.style.width = mW + 'px';
-						slide.style.height = mH + 'px';
-						slide.style.opacity = 0;
-						self.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
 						parent.appendChild(slide);
-						slide.style.left = ( (dir === 'left') ? xx_left : xx_right ) + 'px';
+
+						if(self.screenflow.autostyle) {
+							slide.style.width = mW + 'px';
+							slide.style.height = mH + 'px';
+							slide.style.opacity = 0;
+							self.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
+							slide.style.left = ( (dir === 'left') ? xx_left : xx_right ) + 'px';
+						}
+						
+						
+						self.addClass(slide, 'tertiary');
+						self.addClass(slide, (dir === 'left') ? 'left' : 'right' );
 
 
 						// SHIFT EVERYTHING
 
 						setTimeout(function(){
 
+							self.addClass(slide_now, 'secondary');
+							self.addClass(slide_now, (dir === 'left') ? 'right' : 'left' );
+							self.removeClass(slide_now, 'center');
+
+							self.removeClass( (dir === 'left') ? slide_prev : slide_next, 'secondary' );
+							self.removeClass( (dir === 'left') ? slide_next : slide_prev, 'secondary' );
+							self.addClass( (dir === 'left') ? slide_next : slide_prev, 'tertiary' );
+							self.removeClass( 
+								(dir === 'left') ? slide_prev : slide_next, 
+								(dir === 'left') ? 'left' : 'right' 
+							);
+							
+							self.addClass( (dir === 'left') ? slide_prev : slide_next, 'center' );
+							
+							self.removeClass(slide, 'tertiary');
+							self.removeClass(slide, 'hide');
+							self.addClass(slide, 'secondary');
+
 							if(dir === 'left') {
-								slide_next.style.left = xx_right + 'px';
-								slide_next.style.opacity = 0;
+
 								slide_next.style.zIndex = self.zindex + 3;
-								self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
-
-								slide_now.style.left = x_right + 'px';
-								slide_now.style.opacity = self.screenflow.fade;
-								self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-
-								slide_prev.style.left = x_center + 'px';
-								slide_prev.style.opacity = 1;
-								self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
-
-								slide.style.left = x_left + 'px';
-								slide.style.opacity = self.screenflow.fade;
 								slide.style.zIndex = self.zindex + 3;
-								self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+
+								if(self.screenflow.autostyle) {
+									slide_next.style.left = xx_right + 'px';
+									slide_next.style.opacity = 0;
+									self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
+
+									slide_now.style.left = x_right + 'px';
+									slide_now.style.opacity = self.screenflow.fade;
+									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+
+									slide_prev.style.left = x_center + 'px';
+									slide_prev.style.opacity = 1;
+									self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
+
+									slide.style.left = x_left + 'px';
+									slide.style.opacity = self.screenflow.fade;
+									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+								}
 
 								setTimeout(function(){
 									slide_prev.style.zIndex = self.zindex + 6;
@@ -559,22 +603,27 @@ Carousel.prototype = {
 								},500);
 
 							} else {
-								slide_prev.style.left = xx_left + 'px';
+
 								slide_prev.style.zIndex = self.zindex + 3;
-								self.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
-
-								slide_now.style.left = x_left + 'px';
-								slide_now.style.opacity = self.screenflow.fade;
-								self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
-
-								slide_next.style.left = x_center + 'px';
-								slide_next.style.opacity = 1;
-								self.setVendor(slide_next, 'Transform', 'scale(1.0)');
-
-								slide.style.left = x_right + 'px';
-								slide.style.opacity = self.screenflow.fade;
 								slide.style.zIndex = self.zindex + 3;
-								self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+
+								if(self.screenflow.autostyle) {
+									slide_prev.style.left = xx_left + 'px';
+									slide_next.style.opacity = 0;
+									self.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
+
+									slide_now.style.left = x_left + 'px';
+									slide_now.style.opacity = self.screenflow.fade;
+									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+
+									slide_next.style.left = x_center + 'px';
+									slide_next.style.opacity = 1;
+									self.setVendor(slide_next, 'Transform', 'scale(1.0)');
+
+									slide.style.left = x_right + 'px';
+									slide.style.opacity = self.screenflow.fade;
+									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+								}
 
 								setTimeout(function(){
 									slide_next.style.zIndex = self.zindex + 6;
@@ -607,12 +656,15 @@ Carousel.prototype = {
 							left.style.backgroundRepeat = 'no-repeat';
 							left.style.backgroundPosition = 'center';
 							left.style.zIndex = self.zindex + 4;
-							left.style.opacity = 0;
-							left.style.width = mW + 'px';
-							left.style.height = mH + 'px';
-							left.style.backgroundSize = self.slide;
+							if(self.screenflow.autostyle) {
+								left.style.opacity = 0;
+								left.style.width = mW + 'px';
+								left.style.height = mH + 'px';
+								left.style.backgroundSize = self.slide;
+								self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
+							}
+							left.className = 'slide secondary hide left';
 							self.setVendor(left, 'Transition', 'all 0.3s ease-In');
-							self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
 							parent.appendChild(left);
 
 						var right = document.createElement('div');
@@ -621,26 +673,40 @@ Carousel.prototype = {
 							right.style.backgroundRepeat = 'no-repeat';
 							right.style.backgroundPosition = 'center';
 							right.style.zIndex = self.zindex + 4;
-							right.style.opacity = 0;
-							right.style.width = mW + 'px';
-							right.style.height = mH + 'px';
-							right.style.backgroundSize = self.slide;
+							if(self.screenflow.autostyle) {
+								right.style.opacity = 0;
+								right.style.width = mW + 'px';
+								right.style.height = mH + 'px';
+								right.style.backgroundSize = self.slide;
+								self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
+							}
+							right.className = 'slide secondary hide right';
 							self.setVendor(right, 'Transition', 'all 0.3s ease-In');
-							self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
+							
 							parent.appendChild(right);
 
 						x_left = x_center - ( left.offsetWidth + self.screenflow.buffer );
 						x_right = x_center + mW + self.screenflow.buffer;
 
+						if(self.screenflow.autostyle) {
 							left.style.left = x_left + 'px';
 							right.style.left = x_right + 'px';
+							slide.style.left = x_center + 'px';
+						}
 
-						slide.style.left = x_center + 'px';
+						self.addClass(slide, 'center');
 
 						setTimeout(function(){
-							slide.style.opacity = 1;
-							left.style.opacity = self.screenflow.fade;
-							right.style.opacity = self.screenflow.fade;
+
+							self.removeClass(slide, 'hide');
+							self.removeClass(left, 'hide');
+							self.removeClass(right, 'hide');
+							
+							if(self.screenflow.autostyle) {
+								slide.style.opacity = 1;
+								left.style.opacity = self.screenflow.fade;
+								right.style.opacity = self.screenflow.fade;
+							}
 							self.dom_index.now = slide;
 							self.dom_index.prev = left;
 							self.dom_index.next = right;
