@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.2
+ *  1.3
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -10,7 +10,7 @@
  *  Copyright (c) 2017, All Rights Reserved, www.nargalzius.com
  */
 
-var Carousel = function(){};
+function Carousel(){}
 
 Carousel.prototype = {
 	debug: true,

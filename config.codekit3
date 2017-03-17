@@ -7,7 +7,7 @@
 		"uuidString": "433ECC73-5514-40A9-B6C8-7019A5FFA6DA"
 		}
 	],
-"creatorBuild": "25568",
+"creatorBuild": "25704",
 "files": {
 	"\/Carousel.sublime-project": {
 		"ft": 8192,
@@ -148,7 +148,7 @@
 	"alwaysUseExternalServer": 0,
 	"animateCSSInjections": 1,
 	"autoBuildNewItems": 1,
-	"autoprefixerBrowserString": "> 1%, last 2 versions, Firefox ESR, Opera 12.1",
+	"autoprefixerBrowserString": "> 1%",
 	"babelAuxiliaryCommentAfter": "",
 	"babelAuxiliaryCommentBefore": "",
 	"babelConfigFileHandlingType": 0,
@@ -813,6 +813,10 @@
 			"active": 1,
 			"optionString": ""
 			},
+		"no-compare-neg-zero": {
+			"active": 0,
+			"optionString": ""
+			},
 		"no-cond-assign": {
 			"active": 1,
 			"optionString": "'except-parens'"
@@ -1292,6 +1296,10 @@
 		"no-with": {
 			"active": 0,
 			"optionString": ""
+			},
+		"nonblock-statement-body-position": {
+			"active": 0,
+			"optionString": "'beside'"
 			},
 		"object-curly-newline": {
 			"active": 0,
@@ -1892,7 +1900,8 @@
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
-		"autoOutputPathStyle": 0
+		"autoOutputPathStyle": 0,
+		"quality": 100
 		},
 	"languageDefaultsJS": {
 		"autoOutputAction": 0,
@@ -1985,7 +1994,9 @@
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
-		"autoOutputPathStyle": 0
+		"autoOutputPathStyle": 0,
+		"enableLossy": 1,
+		"quality": 100
 		},
 	"languageDefaultsPUG": {
 		"autoOutputAction": 0,
