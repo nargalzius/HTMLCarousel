@@ -862,7 +862,7 @@ Carousel.prototype = {
 					}
 				};
 
-				var onerror = function(e) { if(console) { console.log(e); } };
+				var onerror = function(e) { if(window.console) { console.log(e); } };
 
 				for(var i = 0; i < arg.length; i++)
 				{
