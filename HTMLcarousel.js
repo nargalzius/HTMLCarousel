@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.3
+ *  1.4
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -49,6 +49,7 @@ Carousel.prototype = {
 	colors_next: '#FFF',
 	colors_spin: '#FFF',
 	colors_net: 'rgba(0,0,0,0.3)',
+	colors_bg: 'rgba(0,0,0,0.4)',
 
 	dom_container: null,
 	dom_slides: null,
@@ -106,7 +107,10 @@ Carousel.prototype = {
 
 	dom_template_spin: function() {
 		this.dom_spin = document.createElement('div');
+		this.dom_spin.style.backgroundColor = this.colors_bg;
+		this.setVendor(this.dom_spin, 'borderRadius', '32px');
 		this.dom_spin.innerHTML = this.svg.spin;
+		this.dom_spin.getElementsByTagName('svg')[0].style.padding = '5px';
 		this.dom_spin.getElementsByTagName('path')[0].style.fill = this.colors_spin;
 	},
 
@@ -257,7 +261,7 @@ Carousel.prototype = {
 
 			self.setVendor(self.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
 			self.setVendor(self.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
-			self.setVendor(self.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
+			// self.setVendor(self.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
 
 			self.active = false;
 			self.wait(1);
@@ -415,6 +419,9 @@ Carousel.prototype = {
 				slide.style.backgroundImage = 'url('+self.imageData[num]+')';
 				slide.style.backgroundRepeat = 'no-repeat';
 				slide.style.backgroundPosition = 'center';
+
+				if(self.mode === 3)
+					self.addClass(slide, 'screenflow');
 				
 				if(self.screenflow.autostyle) {
 					slide.style.backgroundSize = self.slide;
@@ -663,7 +670,7 @@ Carousel.prototype = {
 								left.style.backgroundSize = self.slide;
 								self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
 							}
-							left.className = 'slide secondary hide left';
+							left.className = 'slide secondary hide left screenflow';
 							self.setVendor(left, 'Transition', 'all 0.3s ease-In');
 							parent.appendChild(left);
 
@@ -680,7 +687,7 @@ Carousel.prototype = {
 								right.style.backgroundSize = self.slide;
 								self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
 							}
-							right.className = 'slide secondary hide right';
+							right.className = 'slide secondary hide right screenflow';
 							self.setVendor(right, 'Transition', 'all 0.3s ease-In');
 							
 							parent.appendChild(right);
@@ -839,15 +846,19 @@ Carousel.prototype = {
 		this.dom_next.style.top = '50%';
 		this.dom_next.style.marginTop = ( Number( this.dom_next.offsetHeight / 2 ) * -1 ) + 'px';
 		this.dom_next.style.right = this.arrows.margin+'px';
-
-
 	},
 
 	setVendor: function(element, property, value) {
-		element.style["webkit" + property] = value;
-		element.style["moz" + property] = value;
-		element.style["ms" + property] = value;
-		element.style["o" + property] = value;
+		
+		var styles = window.getComputedStyle(element, '');
+		var regexp = new RegExp(property+'$', "i");
+
+		for (var key in styles) {
+			if( regexp.test(key) ) {
+				element.style[key] = value;
+			}
+		}
+	
 	},
 
 	load: function(arg, callback) {
