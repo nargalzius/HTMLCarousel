@@ -114,7 +114,7 @@ function init(){
 	};
 
 	slideshow.debug = false;
-	slideshow.mode = 3;
+	slideshow.mode = 0;
 	slideshow.loop = true;
 	slideshow.clickable = true;
 	slideshow.arrows = {
