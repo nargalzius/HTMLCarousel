@@ -113,7 +113,7 @@ function init(){
 		slide: slideshow.slide
 	};
 
-	slideshow.debug = false;
+	slideshow.debug = true;
 	slideshow.mode = 0;
 	slideshow.loop = true;
 	slideshow.clickable = true;

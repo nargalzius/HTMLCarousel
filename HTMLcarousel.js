@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.4
+ *  1.6
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -66,6 +66,8 @@ Carousel.prototype = {
 		now: null,
 		next: null
 	},
+	movement: null,
+	active_delay: 500,
 
 	checkForMobile: function() {
 
@@ -110,7 +112,9 @@ Carousel.prototype = {
 		this.dom_spin.style.backgroundColor = this.colors_bg;
 		this.setVendor(this.dom_spin, 'borderRadius', '32px');
 		this.dom_spin.innerHTML = this.svg.spin;
-		this.dom_spin.getElementsByTagName('svg')[0].style.padding = '5px';
+		this.dom_spin.style.padding = '5px';
+		this.dom_spin.style.width = '32px';
+		this.dom_spin.style.height = '32px';
 		this.dom_spin.getElementsByTagName('path')[0].style.fill = this.colors_spin;
 	},
 
@@ -211,6 +215,13 @@ Carousel.prototype = {
 		this.dom_prev.style.cursor = 'pointer';
 		this.dom_prev.style.opacity = 0;
 		this.dom_prev.onclick = function() {
+
+			self.addClass(this, 'clicked');
+
+			setTimeout(function(){
+				self.removeClass(self.dom_prev, 'clicked');
+			}, 300);
+
 			self.prevSlide();
 		};
 		this.dom_container.appendChild(this.dom_prev);
@@ -224,6 +235,13 @@ Carousel.prototype = {
 		this.dom_next.style.cursor = 'pointer';
 		this.dom_next.style.opacity = 0;
 		this.dom_next.onclick = function() {
+
+			self.addClass(this, 'clicked');
+			
+			setTimeout(function(){
+				self.removeClass(self.dom_next, 'clicked');
+			}, 300);
+
 			self.nextSlide();
 		};
 		this.dom_container.appendChild(this.dom_next);
@@ -271,6 +289,8 @@ Carousel.prototype = {
 
 	prevSlide: function() {
 
+		// this.movement = 'left';
+
 		if(this.active) {
 			this.loadSlide(0, 0);
 			this.currentSlide--;
@@ -280,10 +300,14 @@ Carousel.prototype = {
 			}
 
 			this.trace(this.currentSlide);
+
+			this.callback_prev();
 		}
 	},
 
 	nextSlide: function() {
+
+		// this.movement = 'right';
 
 		if(this.active) {
 			this.loadSlide(0, 1);
@@ -294,6 +318,8 @@ Carousel.prototype = {
 			}
 
 			this.trace(this.currentSlide);
+
+			this.callback_next();
 		}
 	},
 
@@ -327,9 +353,10 @@ Carousel.prototype = {
 		var parent = this.dom_slides;
 		var dir = (bool) ? 'right' : 'left';
 
-		this.wait(1);
+		// this.wait(1);
 
-		var limage;
+		var limage = [];
+		var preload = [];
 
 		// EVALUATE REGULAR SLIDESHOW OR SCREENFLOW
 
@@ -345,14 +372,12 @@ Carousel.prototype = {
 
 			if(this.mode === 3) {
 
-				limage = [
-					this.imageData[0],
-					this.imageData[1],
-					this.imageData[2]
-				];
-
+				limage.push(this.imageData[0]);
+				limage.push(this.imageData[1]);
+				limage.push(this.imageData[2]);
+				
 			} else {
-				limage = this.imageData[1];
+				limage.push(this.imageData[1]);
 			}
 
 		} else {
@@ -378,14 +403,23 @@ Carousel.prototype = {
 				num = 1;
 			}
 
-			limage = this.imageData[num];
+			limage.push(this.imageData[num]);
 		}
 
 		if(this.imageInfo.length) {
 			this.currentInfo = this.imageInfo[1];
-		}
 
-		this.load(limage, function(){
+			if(this.imageInfo[1].preload)
+				preload = limage.concat(this.imageInfo[1].preload)
+			else
+				preload = limage;
+		}
+		else
+			preload = limage;
+
+		this.trace(preload);
+
+		this.load(preload, function(){
 
 			self.wait(0);
 			self.callback_show();
@@ -444,7 +478,7 @@ Carousel.prototype = {
 						self.assignClicks();
 
 						self.active = true;
-					}, 50);
+					}, 50); // INITIAL
 				}
 			} else {
 				if(!slide_next) {
@@ -476,7 +510,7 @@ Carousel.prototype = {
 								self.assignClicks();
 
 								self.active = true;
-							}, 500);
+							}, self.active_delay);
 						}, 200);
 					}
 				break;
@@ -502,7 +536,7 @@ Carousel.prototype = {
 								self.assignClicks();
 
 								self.active = true;
-							}, 500);
+							}, self.active_delay);
 						}, 500);
 					}
 				break;
@@ -607,7 +641,7 @@ Carousel.prototype = {
 									self.assignClicks();
 
 									self.active = true;
-								},500);
+								}, self.active_delay);
 
 							} else {
 
@@ -650,7 +684,7 @@ Carousel.prototype = {
 
 									self.active = true;
 
-								},500);
+								}, self.active_delay);
 
 							}
 						}, 50);
@@ -722,7 +756,7 @@ Carousel.prototype = {
 
 							self.active = true;
 
-						}, 50);
+						}, self.active_delay);
 					}
 
 				break;
@@ -742,7 +776,7 @@ Carousel.prototype = {
 							self.assignClicks();
 
 							self.active = true;
-						}, 500);
+						}, self.active_delay);
 					}
 			}
 			self.checkEdges();
@@ -789,6 +823,14 @@ Carousel.prototype = {
 				}
 			};
 		}
+	},
+
+	callback_prev: function() {
+		this.trace('callback_prev');
+	},
+
+	callback_next: function() {
+		this.trace('callback_next');
 	},
 
 	callback_show: function() {
@@ -860,7 +902,17 @@ Carousel.prototype = {
 		}
 	
 	},
-
+	loadedFiles: [],
+	isLoaded: function (file, array) {
+        for(var i = 0; i < array.length; i++)
+        {
+            if(array[i] === file)
+            {
+                return true;
+            }
+        }
+        return false;
+    },
 	load: function(arg, callback) {
 		switch(typeof arg)
 		{
@@ -877,19 +929,33 @@ Carousel.prototype = {
 
 				for(var i = 0; i < arg.length; i++)
 				{
-					var imgs = new Image();
-						imgs.onload = onload;
-						imgs.onerror = onerror;
-						imgs.src = arg[i];
+					if( !this.isLoaded(arg[i], this.loadedFiles) ) {
+						this.wait(1);
+						var imgs = new Image();
+							imgs.onload = onload;
+							imgs.onerror = onerror;
+							imgs.src = arg[i];
+						this.loadedFiles.push(arg[i]);
+					} else {
+						this.trace('already loaded '+ arg[i]);
+						onload();
+					}
 				}
 			break;
 			default:
-				var img = new Image();
-					img.onload = function(){
-						callback();
-					};
-					img.onerror = function(e) { if(window.console) { console.log(e); } };
-					img.src = arg;
+				if( !this.isLoaded(arg, this.loadedFiles) ) {
+					this.wait(1);
+					var img = new Image();
+						img.onload = function(){
+							callback();
+						};
+						img.onerror = function(e) { if(window.console) { console.log(e); } };
+						img.src = arg;
+					this.loadedFiles.push(arg);
+				} else {
+					this.trace('already loaded '+ arg);
+					callback();
+				}
 		}
 	},
 
@@ -897,10 +963,14 @@ Carousel.prototype = {
 		if(reverse) {
 			arr.unshift(arr.pop());
 			this.trace('array shifted left');
+
+			this.movement = 'right';
 		}
 		else {
 			arr.push(arr.shift());
 			this.trace('array shifted right');
+
+			this.movement = 'left';
 		}
 		return arr;
 	},
