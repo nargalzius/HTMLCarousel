@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.6
+ *  1.7
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -70,12 +70,13 @@ Carousel.prototype = {
 	active_delay: 500,
 
 	checkForMobile: function() {
+		const SELF = this;
 
-		var mobileFlag = true;
+		let mobileFlag = true;
 
-		for (var i = 0; i < this.desktopAgents.length; i++) {
-			var regex;
-				regex = new RegExp(this.desktopAgents[i], "i");
+		for (let i = 0; i < SELF.desktopAgents.length; i++) {
+			let regex;
+				regex = new RegExp(SELF.desktopAgents[i], 'i');
 
 			if( window.document.documentElement.className.match(regex) ) {
 				mobileFlag = false;
@@ -83,389 +84,393 @@ Carousel.prototype = {
 		}
 
 		if( mobileFlag ) {
-			this.ismobile = true;
-			this.trace("mobile browser detected");
+			SELF.ismobile = true;
+			SELF.trace('mobile browser detected');
 		} else {
-			this.ismobile = false;
-			this.trace("desktop browser detected");
+			SELF.ismobile = false;
+			SELF.trace('desktop browser detected');
 		}
 	},
 
 	dom_template_prev: function() {
-		this.dom_prev = document.createElement('div');
-		this.dom_prev.innerHTML = this.svg.prev;
-		this.dom_prev.getElementsByTagName('path')[0].style.fill = this.colors_prev;
-		this.dom_prev.getElementsByTagName('svg')[0].style.height = this.arrows.size;
-		this.dom_prev.getElementsByTagName('svg')[0].style.width = this.arrows.size;
+		const SELF = this;
+		SELF.dom_prev = document.createElement('div');
+		SELF.dom_prev.innerHTML = SELF.svg.prev;
+		SELF.dom_prev.getElementsByTagName('path')[0].style.fill = SELF.colors_prev;
+		SELF.dom_prev.getElementsByTagName('svg')[0].style.height = SELF.arrows.size;
+		SELF.dom_prev.getElementsByTagName('svg')[0].style.width = SELF.arrows.size;
 	},
 
 	dom_template_next: function() {
-		this.dom_next = document.createElement('div');
-		this.dom_next.innerHTML = this.svg.next;
-		this.dom_next.getElementsByTagName('path')[0].style.fill = this.colors_next;
-		this.dom_next.getElementsByTagName('svg')[0].style.height = this.arrows.size;
-		this.dom_next.getElementsByTagName('svg')[0].style.width = this.arrows.size;
+		const SELF = this;
+		SELF.dom_next = document.createElement('div');
+		SELF.dom_next.innerHTML = SELF.svg.next;
+		SELF.dom_next.getElementsByTagName('path')[0].style.fill = SELF.colors_next;
+		SELF.dom_next.getElementsByTagName('svg')[0].style.height = SELF.arrows.size;
+		SELF.dom_next.getElementsByTagName('svg')[0].style.width = SELF.arrows.size;
 	},
 
 	dom_template_spin: function() {
-		this.dom_spin = document.createElement('div');
-		this.dom_spin.style.backgroundColor = this.colors_bg;
-		this.setVendor(this.dom_spin, 'borderRadius', '32px');
-		this.dom_spin.innerHTML = this.svg.spin;
-		this.dom_spin.style.padding = '5px';
-		this.dom_spin.style.width = '32px';
-		this.dom_spin.style.height = '32px';
-		this.dom_spin.getElementsByTagName('path')[0].style.fill = this.colors_spin;
+		const SELF = this;
+		SELF.dom_spin = document.createElement('div');
+		SELF.dom_spin.style.backgroundColor = SELF.colors_bg;
+		SELF.setVendor(SELF.dom_spin, 'borderRadius', '32px');
+		SELF.dom_spin.innerHTML = SELF.svg.spin;
+		SELF.dom_spin.style.padding = '5px';
+		SELF.dom_spin.style.width = '32px';
+		SELF.dom_spin.style.height = '32px';
+		SELF.dom_spin.getElementsByTagName('path')[0].style.fill = SELF.colors_spin;
 	},
 
 	init: function(obj, imgarray, infoarray) {
-	// init: function(obj, imgarray) {
-
-		var self = this;
+		const SELF = this;
 		
-		for(var p in imgarray) {
-			this.imageData.push(imgarray[p]);
+		for(let p in imgarray) {
+			SELF.imageData.push(imgarray[p]);
 		}
 
-		if(this.mode === 3 && this.imageData.length < 3) {
+		if(SELF.mode === 3 && SELF.imageData.length < 3) {
 			alert('You need at least three imageData for mode 3. Switching to default (1)');
-			this.mode = 1;
+			SELF.mode = 1;
 		}
 
 		if(infoarray) {
-			for(var q in infoarray) {
-				this.imageInfo.push(infoarray[q]);
+			for(let q in infoarray) {
+				SELF.imageInfo.push(infoarray[q]);
 			}
 		}
 
-		if(this.ismobile === null) { this.checkForMobile(); }
+		if(SELF.ismobile === null) { SELF.checkForMobile(); }
 
 		if(typeof obj === 'object') {
-			this.dom_container = document.getElementById( obj.id );
+			SELF.dom_container = document.getElementById( obj.id );
 		} else {
-			this.dom_container = document.getElementById( obj );
+			SELF.dom_container = document.getElementById( obj );
 		}
 
-		if(this.ismobile) {
-			this.swipedetect(this.dom_container, function(e){
+		if(SELF.ismobile) {
+			SELF.swipedetect(SELF.dom_container, function(e){
 				switch(e) {
-					case "left":
-						self.nextSlide();
+					case 'left':
+						SELF.nextSlide();
 					break;
-					case "right":
-						self.prevSlide();
+					case 'right':
+						SELF.prevSlide();
 					break;
-					case "up":
-						if(self.mode === 0) {
-							self.nextSlide();
+					case 'up':
+						if(SELF.mode === 0) {
+							SELF.nextSlide();
 						}
 					break;
-					case "down":
-						if(self.mode === 0) {
-							self.prevSlide();
+					case 'down':
+						if(SELF.mode === 0) {
+							SELF.prevSlide();
 						}
 					break;
 				}
 			});
 		}
 
-		var container_position = window.getComputedStyle(this.dom_container).getPropertyValue('position');
+		let container_position = window.getComputedStyle(SELF.dom_container).getPropertyValue('position');
 
 		// console.log(container_position);
 
 		if(container_position === 'static') {
-			this.dom_container.style.position = 'relative';
+			SELF.dom_container.style.position = 'relative';
 		}
 
-		this.dom_container.style.backgroundColor = this.colors_container;
-		this.dom_container.style.overflow = 'hidden';
+		SELF.dom_container.style.backgroundColor = SELF.colors_container;
+		SELF.dom_container.style.overflow = 'hidden';
 
 		if( document.defaultView && document.defaultView.getComputedStyle ) {
-			var s = document.defaultView.getComputedStyle( this.dom_container, '' );
-			this.zindex = parseInt( s.getPropertyValue('z-index'), 50 );
-		} else if( this.dom_container.currentStyle ) {
-			this.zindex = parseInt( this.dom_container.currentStyle.zIndex, 50 );
+			let s = document.defaultView.getComputedStyle( SELF.dom_container, '' );
+			SELF.zindex = parseInt( s.getPropertyValue('z-index'), 50 );
+		} else if( SELF.dom_container.currentStyle ) {
+			SELF.zindex = parseInt( SELF.dom_container.currentStyle.zIndex, 50 );
 		}
 
-		if(!this.zindex) {
-			this.zindex = 0;
-			this.trace("z-index for video container element not detected, make sure position property is set.\nzIndex set to 0");
+		if(!SELF.zindex) {
+			SELF.zindex = 0;
+			SELF.trace('z-index for video container element not detected, make sure position property is set.\nzIndex set to 0');
 		}
 
 		// GENERATE DOM ELEMENTS
 
-		this.dom_slides = document.createElement('div');
-		this.dom_slides.className = 'slides';
-		this.dom_slides.style.position = 'relative';
-		this.dom_slides.style.height = '100%';
-		this.dom_slides.style.width = '100%';
-		this.dom_slides.style.top = 0;
-		this.dom_slides.style.left = 0;
-		this.dom_slides.style.display = 'block';
-		this.dom_slides.style.zIndex = this.zindex + 1;
-		this.dom_container.appendChild(this.dom_slides);
+		SELF.dom_slides = document.createElement('div');
+		SELF.dom_slides.className = 'slides';
+		SELF.dom_slides.style.position = 'relative';
+		SELF.dom_slides.style.height = '100%';
+		SELF.dom_slides.style.width = '100%';
+		SELF.dom_slides.style.top = 0;
+		SELF.dom_slides.style.left = 0;
+		SELF.dom_slides.style.display = 'block';
+		SELF.dom_slides.style.zIndex = SELF.zindex + 1;
+		SELF.dom_container.appendChild(SELF.dom_slides);
 
 
-		this.dom_template_prev();
-		this.addClass(this.dom_prev, 'cbtn');
-		this.addClass(this.dom_prev, 'prev');
-		this.dom_prev.style.zIndex = this.zindex + 6;
-		this.dom_prev.style.display = 'block';
-		this.dom_prev.style.position = 'absolute';
-		this.dom_prev.style.cursor = 'pointer';
-		this.dom_prev.style.opacity = 0;
-		this.dom_prev.onclick = function() {
+		SELF.dom_template_prev();
+		SELF.addClass(SELF.dom_prev, 'cbtn');
+		SELF.addClass(SELF.dom_prev, 'prev');
+		SELF.dom_prev.style.zIndex = SELF.zindex + 6;
+		SELF.dom_prev.style.display = 'block';
+		SELF.dom_prev.style.position = 'absolute';
+		SELF.dom_prev.style.cursor = 'pointer';
+		SELF.dom_prev.style.opacity = 0;
+		SELF.dom_prev.onclick = function() {
 
-			self.addClass(this, 'clicked');
+			SELF.addClass(this, 'clicked');
 
 			setTimeout(function(){
-				self.removeClass(self.dom_prev, 'clicked');
+				SELF.removeClass(SELF.dom_prev, 'clicked');
 			}, 300);
 
-			self.prevSlide();
+			SELF.prevSlide();
 		};
-		this.dom_container.appendChild(this.dom_prev);
+		SELF.dom_container.appendChild(SELF.dom_prev);
 
-		this.dom_template_next();
-		this.addClass(this.dom_next, 'cbtn');
-		this.addClass(this.dom_next, 'next');
-		this.dom_next.style.zIndex = this.zindex + 6;
-		this.dom_next.style.display = 'block';
-		this.dom_next.style.position = 'absolute';
-		this.dom_next.style.cursor = 'pointer';
-		this.dom_next.style.opacity = 0;
-		this.dom_next.onclick = function() {
+		SELF.dom_template_next();
+		SELF.addClass(SELF.dom_next, 'cbtn');
+		SELF.addClass(SELF.dom_next, 'next');
+		SELF.dom_next.style.zIndex = SELF.zindex + 6;
+		SELF.dom_next.style.display = 'block';
+		SELF.dom_next.style.position = 'absolute';
+		SELF.dom_next.style.cursor = 'pointer';
+		SELF.dom_next.style.opacity = 0;
+		SELF.dom_next.onclick = function() {
 
-			self.addClass(this, 'clicked');
+			SELF.addClass(this, 'clicked');
 			
 			setTimeout(function(){
-				self.removeClass(self.dom_next, 'clicked');
+				SELF.removeClass(SELF.dom_next, 'clicked');
 			}, 300);
 
-			self.nextSlide();
+			SELF.nextSlide();
 		};
-		this.dom_container.appendChild(this.dom_next);
+		SELF.dom_container.appendChild(SELF.dom_next);
 
-		// this.dom_net = document.createElement('div');
-		// this.dom_net.style.position = 'absolute';
-		// this.dom_net.style.display = 'block';
-		// this.dom_net.style.display = 'none';
-		// this.dom_net.style.width = '100%';
-		// this.dom_net.style.height = '100%';
-		// this.dom_net.style.top = '0';
-		// this.dom_net.style.left = '0';
-		// this.dom_net.style.backgroundColor = this.colors_net;
-		// this.dom_net.style.opacity = 0;
-		// this.dom_net.style.zIndex = this.zindex + 7;
-		// this.dom_container.appendChild(this.dom_net);
+		// SELF.dom_net = document.createElement('div');
+		// SELF.dom_net.style.position = 'absolute';
+		// SELF.dom_net.style.display = 'block';
+		// SELF.dom_net.style.display = 'none';
+		// SELF.dom_net.style.width = '100%';
+		// SELF.dom_net.style.height = '100%';
+		// SELF.dom_net.style.top = '0';
+		// SELF.dom_net.style.left = '0';
+		// SELF.dom_net.style.backgroundColor = SELF.colors_net;
+		// SELF.dom_net.style.opacity = 0;
+		// SELF.dom_net.style.zIndex = SELF.zindex + 7;
+		// SELF.dom_container.appendChild(SELF.dom_net);
 
-		this.dom_template_spin();
-		this.addClass(this.dom_spin, 'spin');
-		this.dom_spin.style.zIndex = this.zindex + 8;
-		this.dom_spin.style.display = 'block';
-		this.dom_spin.style.opacity = 0;
-		this.dom_spin.style.visibility = 'visible';
-		this.dom_spin.style.position = 'absolute';
-		this.dom_container.appendChild(this.dom_spin);
-		this.reflow();
+		SELF.dom_template_spin();
+		SELF.addClass(SELF.dom_spin, 'spin');
+		SELF.dom_spin.style.zIndex = SELF.zindex + 8;
+		SELF.dom_spin.style.display = 'block';
+		SELF.dom_spin.style.opacity = 0;
+		SELF.dom_spin.style.visibility = 'visible';
+		SELF.dom_spin.style.position = 'absolute';
+		SELF.dom_container.appendChild(SELF.dom_spin);
+		SELF.reflow();
 
 
 		setTimeout(function(){
-			self.setVendor(self.dom_prev, 'Transition', 'all 0.3s ease-In');
-			self.setVendor(self.dom_next, 'Transition', 'all 0.3s ease-In');
-			self.setVendor(self.dom_spin, 'Transition', 'all 0.3s ease-In');
+			SELF.setVendor(SELF.dom_prev, 'Transition', 'all 0.3s ease-In');
+			SELF.setVendor(SELF.dom_next, 'Transition', 'all 0.3s ease-In');
+			SELF.setVendor(SELF.dom_spin, 'Transition', 'all 0.3s ease-In');
 
-			// self.setVendor(self.dom_net, 'Transition', 'all 0.3s ease-In');			
+			// SELF.setVendor(SELF.dom_net, 'Transition', 'all 0.3s ease-In');			
 
-			self.setVendor(self.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
-			self.setVendor(self.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
-			// self.setVendor(self.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
+			SELF.setVendor(SELF.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
+			SELF.setVendor(SELF.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
+			// SELF.setVendor(SELF.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
 
-			self.active = false;
-			self.wait(1);
-			self.loadSlide(0);
+			SELF.active = false;
+			SELF.wait(1);
+			SELF.loadSlide(0);
 		}, 600);
 	},
 
 	prevSlide: function() {
+		const SELF = this;
 
-		// this.movement = 'left';
+		// SELF.movement = 'left';
 
-		if(this.active) {
-			this.loadSlide(0, 0);
-			this.currentSlide--;
+		if(SELF.active) {
+			SELF.loadSlide(0, 0);
+			SELF.currentSlide--;
 
-			if(this.currentSlide < 0) {
-				this.currentSlide = this.imageData.length-1;
+			if(SELF.currentSlide < 0) {
+				SELF.currentSlide = SELF.imageData.length-1;
 			}
 
-			this.trace(this.currentSlide);
+			SELF.trace(SELF.currentSlide);
 
-			this.callback_prev();
+			SELF.callback_prev();
 		}
 	},
 
 	nextSlide: function() {
+		const SELF = this;
 
-		// this.movement = 'right';
+		// SELF.movement = 'right';
 
-		if(this.active) {
-			this.loadSlide(0, 1);
-			this.currentSlide++;
+		if(SELF.active) {
+			SELF.loadSlide(0, 1);
+			SELF.currentSlide++;
 
-			if( this.currentSlide > this.imageData.length - 1) {
-				this.currentSlide = 0;
+			if( SELF.currentSlide > SELF.imageData.length - 1) {
+				SELF.currentSlide = 0;
 			}
 
-			this.trace(this.currentSlide);
+			SELF.trace(SELF.currentSlide);
 
-			this.callback_next();
+			SELF.callback_next();
 		}
 	},
 
 	checkEdges: function() {
+		const SELF = this;
 
-		this.trace('loop: '+this.loop);
+		SELF.trace('loop: '+SELF.loop);
 
-		if(this.loop) {
-			this.toggle(this.dom_prev, 1);
-			this.toggle(this.dom_next, 1);
+		if(SELF.loop) {
+			SELF.toggle(SELF.dom_prev, 1);
+			SELF.toggle(SELF.dom_next, 1);
 		} else {
-			if(this.currentSlide === 0 ) {
-				this.toggle(this.dom_prev, 0);
+			if(SELF.currentSlide === 0 ) {
+				SELF.toggle(SELF.dom_prev, 0);
 			} else {
-				this.toggle(this.dom_prev, 1);
+				SELF.toggle(SELF.dom_prev, 1);
 			}
 
-			if( this.currentSlide === ( this.imageData.length - 1 ) ) {
-				this.toggle(this.dom_next, 0);
+			if( SELF.currentSlide === ( SELF.imageData.length - 1 ) ) {
+				SELF.toggle(SELF.dom_next, 0);
 			} else {
-				this.toggle(this.dom_next, 1);
+				SELF.toggle(SELF.dom_next, 1);
 			}
 		}
 
 	},
 
 	loadSlide: function(number, bool) {
+		const SELF = this;
+		
+		let num = number+1;
+		let parent = SELF.dom_slides;
+		let dir = (bool) ? 'right' : 'left';
 
-		var self = this;
-		var num = number+1;
-		var parent = this.dom_slides;
-		var dir = (bool) ? 'right' : 'left';
+		// SELF.wait(1);
 
-		// this.wait(1);
-
-		var limage = [];
-		var preload = [];
+		let limage = [];
+		let preload = [];
 
 		// EVALUATE REGULAR SLIDESHOW OR SCREENFLOW
 
-		if(!this.dom_index.next) {
-			this.trace('first time');
+		if(!SELF.dom_index.next) {
+			SELF.trace('first time');
 
 			// SET IMAGE ARRAY TO HAVE PREVOIUS AS 0, CURRENT AS 1, AND NEXT AS 2
-			this.arrayRotate(this.imageData, true);
+			SELF.arrayRotate(SELF.imageData, true);
 
-			if(this.imageInfo.length) {
-				this.arrayRotate(this.imageInfo, true);
+			if(SELF.imageInfo.length) {
+				SELF.arrayRotate(SELF.imageInfo, true);
 			}
 
-			if(this.mode === 3) {
+			if(SELF.mode === 3) {
 
-				limage.push(this.imageData[0]);
-				limage.push(this.imageData[1]);
-				limage.push(this.imageData[2]);
+				limage.push(SELF.imageData[0]);
+				limage.push(SELF.imageData[1]);
+				limage.push(SELF.imageData[2]);
 				
 			} else {
-				limage.push(this.imageData[1]);
+				limage.push(SELF.imageData[1]);
 			}
 
 		} else {
-			this.trace('no longer first');
+			SELF.trace('no longer first');
 
 			if(dir === 'left') {
-				this.arrayRotate(this.imageData, true);
+				SELF.arrayRotate(SELF.imageData, true);
 				
-				if(this.imageInfo.length) {
-					this.arrayRotate(this.imageInfo, true);
+				if(SELF.imageInfo.length) {
+					SELF.arrayRotate(SELF.imageInfo, true);
 				}
 			} else {
-				this.arrayRotate(this.imageData);
+				SELF.arrayRotate(SELF.imageData);
 
-				if(this.imageInfo.length) {
-					this.arrayRotate(this.imageInfo);
+				if(SELF.imageInfo.length) {
+					SELF.arrayRotate(SELF.imageInfo);
 				}
 			}
 
-			if(this.mode === 3) {
+			if(SELF.mode === 3) {
 				num = (dir === 'left') ? 0 : 2;
 			} else {
 				num = 1;
 			}
 
-			limage.push(this.imageData[num]);
+			limage.push(SELF.imageData[num]);
 		}
 
-		if(this.imageInfo.length) {
-			this.currentInfo = this.imageInfo[1];
+		if(SELF.imageInfo.length) {
+			SELF.currentInfo = SELF.imageInfo[1];
 
-			if(this.imageInfo[1].preload)
-				preload = limage.concat(this.imageInfo[1].preload)
+			if(SELF.imageInfo[1].preload)
+				preload = limage.concat(SELF.imageInfo[1].preload)
 			else
 				preload = limage;
 		}
 		else
 			preload = limage;
 
-		this.trace(preload);
+		SELF.trace(preload);
 
-		this.load(preload, function(){
+		SELF.load(preload, function(){
 
-			self.wait(0);
-			self.callback_show();
+			SELF.wait(0);
+			SELF.callback_show();
 
-			var slide_next = (self.dom_index.next) ? self.dom_index.next : null;
-			var slide_prev = (self.dom_index.prev) ? self.dom_index.prev : null;
-			var slide_now = (self.dom_index.now) ? self.dom_index.now : null;
-			var to;
-			var from;
+			let slide_next = (SELF.dom_index.next) ? SELF.dom_index.next : null;
+			let slide_prev = (SELF.dom_index.prev) ? SELF.dom_index.prev : null;
+			let slide_now = (SELF.dom_index.now) ? SELF.dom_index.now : null;
+			let to;
+			let from;
 
 			// SCREENFLOW STUFF
-			var mW;
-			var mH;
-			var x_center;
-			var p_smaller;
-			var p_xsmall;
-			var x_left;
-			var x_right;
-			var xx_left;
-			var xx_right;
+			let mW;
+			let mH;
+			let x_center;
+			let p_smaller;
+			let p_xsmall;
+			let x_left;
+			let x_right;
+			let xx_left;
+			let xx_right;
 
-			if(self.mode === 3 && (slide_next || slide_now || slide_prev)) {
+			if( SELF.mode === 3 && ( slide_next || slide_now || slide_prev ) ) {
 				num = (dir === 'left') ? 0 : 2;
 			}
 
-			var slide = document.createElement('div');
+			let slide = document.createElement('div');
 
 				slide.className = 'slide hide';
 				slide.style.position = 'absolute';
-				slide.style.zIndex = self.zindex + 5;
-				slide.style.backgroundImage = 'url('+self.imageData[num]+')';
+				slide.style.zIndex = SELF.zindex + 5;
+				slide.style.backgroundImage = 'url('+SELF.imageData[num]+')';
 				slide.style.backgroundRepeat = 'no-repeat';
 				slide.style.backgroundPosition = 'center';
 
-				if(self.mode === 3)
-					self.addClass(slide, 'screenflow');
+				if(SELF.mode === 3)
+					SELF.addClass(slide, 'screenflow');
 				
-				if(self.screenflow.autostyle) {
-					slide.style.backgroundSize = self.slide;
+				if(SELF.screenflow.autostyle) {
+					slide.style.backgroundSize = SELF.slide;
 					slide.style.opacity = 0;
 				}
 
-			self.setVendor(slide, 'Transition', 'all 0.3s ease-In');
+			SELF.setVendor(slide, 'Transition', 'all 0.3s ease-In');
 			parent.appendChild(slide);
 
-			if(self.mode !== 3) {
+			if(SELF.mode !== 3) {
 				slide.style.width = '100%';
 				slide.style.height = '100%';
 
@@ -473,28 +478,28 @@ Carousel.prototype = {
 					setTimeout(function(){
 						slide.style.left = 0;
 						slide.style.opacity = 1;
-						self.dom_index.next = slide;
+						SELF.dom_index.next = slide;
 
-						self.assignClicks();
+						SELF.assignClicks();
 
-						self.active = true;
+						SELF.active = true;
 					}, 50); // INITIAL
 				}
 			} else {
 				if(!slide_next) {
-					self.addClass(slide, 'center');
+					SELF.addClass(slide, 'center');
 				} else {
-					self.addClass(slide, 'hide');
-					self.addClass(slide, 'tertiary');
+					SELF.addClass(slide, 'hide');
+					SELF.addClass(slide, 'tertiary');
 				}
 			}
 
-			switch(self.mode) {
+			switch(SELF.mode) {
 				case 1:
 					// SLIDE
 
-					to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
-					from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
+					to = (dir === 'left') ? SELF.dom_container.offsetWidth : SELF.dom_container.offsetWidth * -1;
+					from = (dir === 'left') ? SELF.dom_container.offsetWidth * -1 : SELF.dom_container.offsetWidth;
 
 					if(slide_next) {
 						slide.style.opacity = 1;
@@ -505,24 +510,24 @@ Carousel.prototype = {
 
 							setTimeout(function(){
 								slide_next.parentNode.removeChild(slide_next);
-								self.dom_index.next = slide;
+								SELF.dom_index.next = slide;
 
-								self.assignClicks();
+								SELF.assignClicks();
 
-								self.active = true;
-							}, self.active_delay);
+								SELF.active = true;
+							}, SELF.active_delay);
 						}, 200);
 					}
 				break;
 				case 2:
 					// REVEAL
 
-					to = (dir === 'left') ? self.dom_container.offsetWidth : self.dom_container.offsetWidth * -1;
-					from = (dir === 'left') ? self.dom_container.offsetWidth * -1 : self.dom_container.offsetWidth;
+					to = (dir === 'left') ? SELF.dom_container.offsetWidth : SELF.dom_container.offsetWidth * -1;
+					from = (dir === 'left') ? SELF.dom_container.offsetWidth * -1 : SELF.dom_container.offsetWidth;
 
 					if(slide_next) {
-						slide_next.style.zIndex = self.zindex + 5;
-						slide.style.zIndex = self.zindex + 4;
+						slide_next.style.zIndex = SELF.zindex + 20;
+						slide.style.zIndex = SELF.zindex + 10;
 						slide.style.opacity = 1;
 						slide.style.left = '0px';
 
@@ -531,12 +536,12 @@ Carousel.prototype = {
 
 							setTimeout(function(){
 								slide_next.parentNode.removeChild(slide_next);
-								self.dom_index.next = slide;
+								SELF.dom_index.next = slide;
 
-								self.assignClicks();
+								SELF.assignClicks();
 
-								self.active = true;
-							}, self.active_delay);
+								SELF.active = true;
+							}, SELF.active_delay);
 						}, 500);
 					}
 				break;
@@ -544,14 +549,14 @@ Carousel.prototype = {
 
 					// SCREENFLOW
 
-					mW = ( self.screenflow.width ) ? self.screenflow.width : self.dom_container.offsetHeight;
-					mH = ( self.screenflow.height ) ? self.screenflow.height : self.dom_container.offsetHeight;
-					x_center = ( self.dom_container.offsetWidth - mW ) / 2;
-					p_smaller = ( self.screenflow.smaller ) ? self.screenflow.smaller : 0.7;
-					p_xsmall = ( self.screenflow.smaller ) ? self.screenflow.smaller * self.screenflow.smaller : (0.7 * 0.7) ;
+					mW = ( SELF.screenflow.width ) ? SELF.screenflow.width : SELF.dom_container.offsetHeight;
+					mH = ( SELF.screenflow.height ) ? SELF.screenflow.height : SELF.dom_container.offsetHeight;
+					x_center = ( SELF.dom_container.offsetWidth - mW ) / 2;
+					p_smaller = ( SELF.screenflow.smaller ) ? SELF.screenflow.smaller : 0.7;
+					p_xsmall = ( SELF.screenflow.smaller ) ? SELF.screenflow.smaller * SELF.screenflow.smaller : (0.7 * 0.7) ;
 
 
-					if(self.screenflow.autostyle) {
+					if(SELF.screenflow.autostyle) {
 						slide.style.width = mW + 'px';
 						slide.style.height = mH + 'px';
 					}
@@ -566,197 +571,197 @@ Carousel.prototype = {
 
 						parent.appendChild(slide);
 
-						if(self.screenflow.autostyle) {
+						if(SELF.screenflow.autostyle) {
 							slide.style.width = mW + 'px';
 							slide.style.height = mH + 'px';
 							slide.style.opacity = 0;
-							self.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
+							SELF.setVendor(slide, 'Transform', 'scale('+p_xsmall+')');
 							slide.style.left = ( (dir === 'left') ? xx_left : xx_right ) + 'px';
 						}
 						
 						
-						self.addClass(slide, 'tertiary');
-						self.addClass(slide, (dir === 'left') ? 'left' : 'right' );
+						SELF.addClass(slide, 'tertiary');
+						SELF.addClass(slide, (dir === 'left') ? 'left' : 'right' );
 
 
 						// SHIFT EVERYTHING
 
 						setTimeout(function(){
 
-							self.addClass(slide_now, 'secondary');
-							self.addClass(slide_now, (dir === 'left') ? 'right' : 'left' );
-							self.removeClass(slide_now, 'center');
+							SELF.addClass(slide_now, 'secondary');
+							SELF.addClass(slide_now, (dir === 'left') ? 'right' : 'left' );
+							SELF.removeClass(slide_now, 'center');
 
-							self.removeClass( (dir === 'left') ? slide_prev : slide_next, 'secondary' );
-							self.removeClass( (dir === 'left') ? slide_next : slide_prev, 'secondary' );
-							self.addClass( (dir === 'left') ? slide_next : slide_prev, 'tertiary' );
-							self.removeClass( 
+							SELF.removeClass( (dir === 'left') ? slide_prev : slide_next, 'secondary' );
+							SELF.removeClass( (dir === 'left') ? slide_next : slide_prev, 'secondary' );
+							SELF.addClass( (dir === 'left') ? slide_next : slide_prev, 'tertiary' );
+							SELF.removeClass( 
 								(dir === 'left') ? slide_prev : slide_next, 
 								(dir === 'left') ? 'left' : 'right' 
 							);
 							
-							self.addClass( (dir === 'left') ? slide_prev : slide_next, 'center' );
+							SELF.addClass( (dir === 'left') ? slide_prev : slide_next, 'center' );
 							
-							self.removeClass(slide, 'tertiary');
-							self.removeClass(slide, 'hide');
-							self.addClass(slide, 'secondary');
+							SELF.removeClass(slide, 'tertiary');
+							SELF.removeClass(slide, 'hide');
+							SELF.addClass(slide, 'secondary');
 
 							if(dir === 'left') {
 
-								slide_next.style.zIndex = self.zindex + 3;
-								slide.style.zIndex = self.zindex + 3;
+								slide_next.style.zIndex = SELF.zindex + 3;
+								slide.style.zIndex = SELF.zindex + 3;
 
-								if(self.screenflow.autostyle) {
+								if(SELF.screenflow.autostyle) {
 									slide_next.style.left = xx_right + 'px';
 									slide_next.style.opacity = 0;
-									self.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
+									SELF.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
 
 									slide_now.style.left = x_right + 'px';
-									slide_now.style.opacity = self.screenflow.fade;
-									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+									slide_now.style.opacity = SELF.screenflow.fade;
+									SELF.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
 
 									slide_prev.style.left = x_center + 'px';
 									slide_prev.style.opacity = 1;
-									self.setVendor(slide_prev, 'Transform', 'scale(1.0)');
+									SELF.setVendor(slide_prev, 'Transform', 'scale(1.0)');
 
 									slide.style.left = x_left + 'px';
-									slide.style.opacity = self.screenflow.fade;
-									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+									slide.style.opacity = SELF.screenflow.fade;
+									SELF.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
 								}
 
 								setTimeout(function(){
-									slide_prev.style.zIndex = self.zindex + 6;
+									slide_prev.style.zIndex = SELF.zindex + 6;
 								}, 50);
 
 								setTimeout(function(){
 									slide_next.parentNode.removeChild(slide_next);
 
-									slide_now.style.zIndex = self.zindex + 4;
-									slide_prev.style.zIndex = self.zindex + 5;
+									slide_now.style.zIndex = SELF.zindex + 4;
+									slide_prev.style.zIndex = SELF.zindex + 5;
 
-									self.dom_index.prev = slide;
-									self.dom_index.now = slide_prev;
-									self.dom_index.next = slide_now;
+									SELF.dom_index.prev = slide;
+									SELF.dom_index.now = slide_prev;
+									SELF.dom_index.next = slide_now;
 
-									self.assignClicks();
+									SELF.assignClicks();
 
-									self.active = true;
-								}, self.active_delay);
+									SELF.active = true;
+								}, SELF.active_delay);
 
 							} else {
 
-								slide_prev.style.zIndex = self.zindex + 3;
-								slide.style.zIndex = self.zindex + 3;
+								slide_prev.style.zIndex = SELF.zindex + 3;
+								slide.style.zIndex = SELF.zindex + 3;
 
-								if(self.screenflow.autostyle) {
+								if(SELF.screenflow.autostyle) {
 									slide_prev.style.left = xx_left + 'px';
 									slide_next.style.opacity = 0;
-									self.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
+									SELF.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
 
 									slide_now.style.left = x_left + 'px';
-									slide_now.style.opacity = self.screenflow.fade;
-									self.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+									slide_now.style.opacity = SELF.screenflow.fade;
+									SELF.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
 
 									slide_next.style.left = x_center + 'px';
 									slide_next.style.opacity = 1;
-									self.setVendor(slide_next, 'Transform', 'scale(1.0)');
+									SELF.setVendor(slide_next, 'Transform', 'scale(1.0)');
 
 									slide.style.left = x_right + 'px';
-									slide.style.opacity = self.screenflow.fade;
-									self.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+									slide.style.opacity = SELF.screenflow.fade;
+									SELF.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
 								}
 
 								setTimeout(function(){
-									slide_next.style.zIndex = self.zindex + 6;
+									slide_next.style.zIndex = SELF.zindex + 6;
 								}, 50);
 
 								setTimeout(function(){
 									slide_prev.parentNode.removeChild(slide_prev);
 
-									slide_now.style.zIndex = self.zindex + 4;
-									slide_next.style.zIndex = self.zindex + 5;
+									slide_now.style.zIndex = SELF.zindex + 4;
+									slide_next.style.zIndex = SELF.zindex + 5;
 
-									self.dom_index.prev = slide_now;
-									self.dom_index.now = slide_next;
-									self.dom_index.next = slide;
+									SELF.dom_index.prev = slide_now;
+									SELF.dom_index.now = slide_next;
+									SELF.dom_index.next = slide;
 
-									self.assignClicks();
+									SELF.assignClicks();
 
-									self.active = true;
+									SELF.active = true;
 
-								}, self.active_delay);
+								}, SELF.active_delay);
 
 							}
 						}, 50);
 
 					} else {
 
-						var left = document.createElement('div');
+						let left = document.createElement('div');
 							left.style.position = 'absolute';
-							left.style.backgroundImage = 'url('+self.imageData[num-1]+')';
+							left.style.backgroundImage = 'url('+SELF.imageData[num-1]+')';
 							left.style.backgroundRepeat = 'no-repeat';
 							left.style.backgroundPosition = 'center';
-							left.style.zIndex = self.zindex + 4;
-							if(self.screenflow.autostyle) {
+							left.style.zIndex = SELF.zindex + 4;
+							if(SELF.screenflow.autostyle) {
 								left.style.opacity = 0;
 								left.style.width = mW + 'px';
 								left.style.height = mH + 'px';
-								left.style.backgroundSize = self.slide;
-								self.setVendor(left, 'Transform', 'scale('+p_smaller+')');
+								left.style.backgroundSize = SELF.slide;
+								SELF.setVendor(left, 'Transform', 'scale('+p_smaller+')');
 							}
 							left.className = 'slide secondary hide left screenflow';
-							self.setVendor(left, 'Transition', 'all 0.3s ease-In');
+							SELF.setVendor(left, 'Transition', 'all 0.3s ease-In');
 							parent.appendChild(left);
 
-						var right = document.createElement('div');
+						let right = document.createElement('div');
 							right.style.position = 'absolute';
-							right.style.backgroundImage = 'url('+self.imageData[num+1]+')';
+							right.style.backgroundImage = 'url('+SELF.imageData[num+1]+')';
 							right.style.backgroundRepeat = 'no-repeat';
 							right.style.backgroundPosition = 'center';
-							right.style.zIndex = self.zindex + 4;
-							if(self.screenflow.autostyle) {
+							right.style.zIndex = SELF.zindex + 4;
+							if(SELF.screenflow.autostyle) {
 								right.style.opacity = 0;
 								right.style.width = mW + 'px';
 								right.style.height = mH + 'px';
-								right.style.backgroundSize = self.slide;
-								self.setVendor(right, 'Transform', 'scale('+p_smaller+')');
+								right.style.backgroundSize = SELF.slide;
+								SELF.setVendor(right, 'Transform', 'scale('+p_smaller+')');
 							}
 							right.className = 'slide secondary hide right screenflow';
-							self.setVendor(right, 'Transition', 'all 0.3s ease-In');
+							SELF.setVendor(right, 'Transition', 'all 0.3s ease-In');
 							
 							parent.appendChild(right);
 
-						x_left = x_center - ( left.offsetWidth + self.screenflow.buffer );
-						x_right = x_center + mW + self.screenflow.buffer;
+						x_left = x_center - ( left.offsetWidth + SELF.screenflow.buffer );
+						x_right = x_center + mW + SELF.screenflow.buffer;
 
-						if(self.screenflow.autostyle) {
+						if(SELF.screenflow.autostyle) {
 							left.style.left = x_left + 'px';
 							right.style.left = x_right + 'px';
 							slide.style.left = x_center + 'px';
 						}
 
-						self.addClass(slide, 'center');
+						SELF.addClass(slide, 'center');
 
 						setTimeout(function(){
 
-							self.removeClass(slide, 'hide');
-							self.removeClass(left, 'hide');
-							self.removeClass(right, 'hide');
+							SELF.removeClass(slide, 'hide');
+							SELF.removeClass(left, 'hide');
+							SELF.removeClass(right, 'hide');
 							
-							if(self.screenflow.autostyle) {
+							if(SELF.screenflow.autostyle) {
 								slide.style.opacity = 1;
-								left.style.opacity = self.screenflow.fade;
-								right.style.opacity = self.screenflow.fade;
+								left.style.opacity = SELF.screenflow.fade;
+								right.style.opacity = SELF.screenflow.fade;
 							}
-							self.dom_index.now = slide;
-							self.dom_index.prev = left;
-							self.dom_index.next = right;
+							SELF.dom_index.now = slide;
+							SELF.dom_index.prev = left;
+							SELF.dom_index.next = right;
 
-							self.assignClicks();
+							SELF.assignClicks();
 
-							self.active = true;
+							SELF.active = true;
 
-						}, self.active_delay);
+						}, SELF.active_delay);
 					}
 
 				break;
@@ -764,84 +769,89 @@ Carousel.prototype = {
 					// FADE
 					if(slide_next) {
 
-						slide_next.style.zIndex = self.zindex + 4;
+						slide_next.style.zIndex = SELF.zindex + 4;
 
 						setTimeout(function(){
 							slide.style.opacity = 1;
 						}, 50);
 						setTimeout(function(){
 							slide_next.parentNode.removeChild(slide_next);
-							self.dom_index.next = slide;
+							SELF.dom_index.next = slide;
 
-							self.assignClicks();
+							SELF.assignClicks();
 
-							self.active = true;
-						}, self.active_delay);
+							SELF.active = true;
+						}, SELF.active_delay);
 					}
 			}
-			self.checkEdges();
+			SELF.checkEdges();
 		});
 
 
 	},
 
 	assignClicks: function() {
+		const SELF = this;
 
-		var self = this;
-
-		if(this.mode === 3) {
-			this.dom_index.prev.style.cursor = 'default';
-			this.dom_index.prev.onclick = function() {
-				if(self.loop || self.currentSlide !== 0 && self.active) {
-					self.prevSlide();
+		if(SELF.mode === 3) {
+			SELF.dom_index.prev.style.cursor = 'default';
+			SELF.dom_index.prev.onclick = function() {
+				if(SELF.loop || SELF.currentSlide !== 0 && SELF.active) {
+					SELF.prevSlide();
 				}
 
 			};
 
-			this.dom_index.next.style.cursor = 'default';
-			this.dom_index.next.onclick = function() {
-				if(self.loop || self.currentSlide !== self.imageData.length-1 && self.active) {
-					self.nextSlide();
+			SELF.dom_index.next.style.cursor = 'default';
+			SELF.dom_index.next.onclick = function() {
+				if(SELF.loop || SELF.currentSlide !== SELF.imageData.length-1 && SELF.active) {
+					SELF.nextSlide();
 				}
 			};
 
-			if(this.clickable) {
-				this.dom_index.now.style.cursor = 'pointer';
+			if(SELF.clickable) {
+				SELF.dom_index.now.style.cursor = 'pointer';
 			}
-			this.dom_index.now.onclick = function() {
-				if(self.clickable && self.active) {
-					self.callback_click();
+			SELF.dom_index.now.onclick = function() {
+				if(SELF.clickable && SELF.active) {
+					SELF.callback_click();
 				}
 			};
 		} else {
-			if(this.clickable) {
-				this.dom_index.next.style.cursor = 'pointer';
+			if(SELF.clickable) {
+				SELF.dom_index.next.style.cursor = 'pointer';
 			}
-			this.dom_index.next.onclick = function() {
-				if(self.clickable && self.active) {
-					self.callback_click();
+			SELF.dom_index.next.onclick = function() {
+				if(SELF.clickable && SELF.active) {
+					SELF.callback_click();
 				}
 			};
 		}
 	},
 
 	callback_prev: function() {
-		this.trace('callback_prev');
+		const SELF = this;
+			  SELF.trace('callback_prev');
 	},
 
 	callback_next: function() {
-		this.trace('callback_next');
+		const SELF = this;
+			  SELF.trace('callback_next');
 	},
 
 	callback_show: function() {
-		this.trace('callback_show');
+		const SELF = this;
+			  SELF.trace('callback_show');
 	},
 
 	callback_click: function() {
-		this.trace('callback_click');
+		const SELF = this;
+			  SELF.trace('callback_click');
 	},
 
 	toggle: function(obj, bool) {
+		const SELF = this;
+
 		if(bool) {
 			obj.style.opacity = 0;
 			obj.style.display = 'block';
@@ -857,45 +867,49 @@ Carousel.prototype = {
 	},
 
 	wait: function(bool) {
-
-		this.active = false;
+		const SELF = this;
+			  SELF.active = false;
 
 		if(bool) {
-			this.toggle(this.dom_spin, 1);
-			// this.toggle(this.dom_net, 1);
+			SELF.toggle(SELF.dom_spin, 1);
+			// SELF.toggle(SELF.dom_net, 1);
 		} else {
-			this.toggle(this.dom_spin, 0);
-			// this.toggle(this.dom_net, 0);
+			SELF.toggle(SELF.dom_spin, 0);
+			// SELF.toggle(SELF.dom_net, 0);
 		}
 
 	},
 
 	get: function(str) {
+		const SELF = this;
+
 		return document.querySelector(str);
 	},
 
 	reflow: function() {
+		const SELF = this;
 
-		this.dom_spin.style.top = '50%';
-		this.dom_spin.style.marginTop = ( Number( this.dom_spin.offsetHeight / 2 ) * -1 ) + 'px';
-		this.dom_spin.style.left = '50%';
-		this.dom_spin.style.marginLeft = ( Number( this.dom_spin.offsetWidth / 2 ) * -1 ) + 'px';
+		SELF.dom_spin.style.top = '50%';
+		SELF.dom_spin.style.marginTop = ( Number( SELF.dom_spin.offsetHeight / 2 ) * -1 ) + 'px';
+		SELF.dom_spin.style.left = '50%';
+		SELF.dom_spin.style.marginLeft = ( Number( SELF.dom_spin.offsetWidth / 2 ) * -1 ) + 'px';
 
-		this.dom_prev.style.top = '50%';
-		this.dom_prev.style.marginTop = ( Number( this.dom_prev.offsetHeight / 2 ) * -1 ) + 'px';
-		this.dom_prev.style.left = this.arrows.margin+'px';
+		SELF.dom_prev.style.top = '50%';
+		SELF.dom_prev.style.marginTop = ( Number( SELF.dom_prev.offsetHeight / 2 ) * -1 ) + 'px';
+		SELF.dom_prev.style.left = SELF.arrows.margin+'px';
 
-		this.dom_next.style.top = '50%';
-		this.dom_next.style.marginTop = ( Number( this.dom_next.offsetHeight / 2 ) * -1 ) + 'px';
-		this.dom_next.style.right = this.arrows.margin+'px';
+		SELF.dom_next.style.top = '50%';
+		SELF.dom_next.style.marginTop = ( Number( SELF.dom_next.offsetHeight / 2 ) * -1 ) + 'px';
+		SELF.dom_next.style.right = SELF.arrows.margin+'px';
 	},
 
 	setVendor: function(element, property, value) {
+		const SELF = this;
 		
-		var styles = window.getComputedStyle(element, '');
-		var regexp = new RegExp(property+'$', "i");
+		let styles = window.getComputedStyle(element, '');
+		let regexp = new RegExp(property+'$', 'i');
 
-		for (var key in styles) {
+		for (let key in styles) {
 			if( regexp.test(key) ) {
 				element.style[key] = value;
 			}
@@ -904,7 +918,9 @@ Carousel.prototype = {
 	},
 	loadedFiles: [],
 	isLoaded: function (file, array) {
-        for(var i = 0; i < array.length; i++)
+		const SELF = this;
+
+        for(let i = 0; i < array.length; i++)
         {
             if(array[i] === file)
             {
@@ -914,82 +930,89 @@ Carousel.prototype = {
         return false;
     },
 	load: function(arg, callback) {
+		const SELF = this;
+
 		switch(typeof arg)
 		{
-			case "object":
-				var lcounter  = 0;
+			case 'object':
+				let lcounter  = 0;
 
-				var onload = function() {
+				let onload = function() {
 					if(++lcounter === arg.length && callback) {
 						callback();
 					}
 				};
 
-				var onerror = function(e) { if(window.console) { console.log(e); } };
+				let onerror = function(e) { if(window.console) { console.log(e); } };
 
-				for(var i = 0; i < arg.length; i++)
+				for(let i = 0; i < arg.length; i++)
 				{
-					if( !this.isLoaded(arg[i], this.loadedFiles) ) {
-						this.wait(1);
-						var imgs = new Image();
+					if( !SELF.isLoaded(arg[i], SELF.loadedFiles) ) {
+						SELF.wait(1);
+						let imgs = new Image();
 							imgs.onload = onload;
 							imgs.onerror = onerror;
 							imgs.src = arg[i];
-						this.loadedFiles.push(arg[i]);
+						SELF.loadedFiles.push(arg[i]);
 					} else {
-						this.trace('already loaded '+ arg[i]);
+						SELF.trace('already loaded '+ arg[i]);
 						onload();
 					}
 				}
 			break;
 			default:
-				if( !this.isLoaded(arg, this.loadedFiles) ) {
-					this.wait(1);
-					var img = new Image();
+				if( !SELF.isLoaded(arg, SELF.loadedFiles) ) {
+					SELF.wait(1);
+					let img = new Image();
 						img.onload = function(){
 							callback();
 						};
 						img.onerror = function(e) { if(window.console) { console.log(e); } };
 						img.src = arg;
-					this.loadedFiles.push(arg);
+					SELF.loadedFiles.push(arg);
 				} else {
-					this.trace('already loaded '+ arg);
+					SELF.trace('already loaded '+ arg);
 					callback();
 				}
 		}
 	},
 
 	arrayRotate: function(arr, reverse){
+		const SELF = this;
+
 		if(reverse) {
 			arr.unshift(arr.pop());
-			this.trace('array shifted left');
+			SELF.trace('array shifted left');
 
-			this.movement = 'right';
+			SELF.movement = 'right';
 		}
 		else {
 			arr.push(arr.shift());
-			this.trace('array shifted right');
+			SELF.trace('array shifted right');
 
-			this.movement = 'left';
+			SELF.movement = 'left';
 		}
 		return arr;
 	},
 
 	trace: function(str) {
+		const SELF = this;
 
-		if(this.debug) {
+		if(SELF.debug) {
 
 			if(window.console) {
 				window.console.log(str);
 			}
 
-			if( this.dom_debug ) {
-				this.dom_debug.innerHTML += str + '<br>';
+			if( SELF.dom_debug ) {
+				SELF.dom_debug.innerHTML += str + '<br>';
 			}
 		}
 	},
 
 	addClass: function(el, className) {
+		const SELF = this;
+
 		if (el.classList) {
 			el.classList.add(className);
 		} else {
@@ -998,6 +1021,8 @@ Carousel.prototype = {
 	},
 
 	removeClass: function(el, className) {
+		const SELF = this;
+
 		if (el.classList) {
 			el.classList.remove(className);
 		} else {
@@ -1006,23 +1031,24 @@ Carousel.prototype = {
 	},
 
 	swipedetect: function(el, callback){
+		const SELF = this;
 
-		var touchsurface = el;
-		var swipedir;
-		var startX;
-		var startY;
-		var distX;
-		var distY;
-		var dist;
-		var threshold = 150; //required min distance traveled to be considered swipe
-		var restraint = 100; // maximum distance allowed at the same time in perpendicular direction
-		var allowedTime = 300; // maximum time allowed to travel that distance
-		var elapsedTime;
-		var startTime;
-		var handleswipe = callback || function(swipedir){};
+		let touchsurface = el;
+		let swipedir;
+		let startX;
+		let startY;
+		let distX;
+		let distY;
+		let dist;
+		let threshold = 150; //required min distance traveled to be considered swipe
+		let restraint = 100; // maximum distance allowed at the same time in perpendicular direction
+		let allowedTime = 300; // maximum time allowed to travel that distance
+		let elapsedTime;
+		let startTime;
+		let handleswipe = callback || function(swipedir){};
 
 		touchsurface.addEventListener('touchstart', function(e){
-			var touchobj = e.changedTouches[0];
+			let touchobj = e.changedTouches[0];
 			swipedir = 'none';
 			dist = 0;
 			startX = touchobj.pageX;
@@ -1036,7 +1062,7 @@ Carousel.prototype = {
 		}, false);
 
 		touchsurface.addEventListener('touchend', function(e){
-			var touchobj = e.changedTouches[0];
+			let touchobj = e.changedTouches[0];
 			distX = touchobj.pageX - startX; // get horizontal dist traveled by finger while in contact with surface
 			distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
 			elapsedTime = new Date().getTime() - startTime; // get time elapsed
@@ -1054,22 +1080,24 @@ Carousel.prototype = {
 	},
 
 	destroy: function() {
-		this.dom_container.innerHTML = '';
-		this.dom_container = null;
-		this.dom_index = {
+		const SELF = this;
+
+		SELF.dom_container.innerHTML = '';
+		SELF.dom_container = null;
+		SELF.dom_index = {
 			prev: null,
 			now: null,
 			next: null
 		};
-		this.currentSlide = 0;
-		this.currentInfo = null;
-		this.imageData = [];
-		this.imageInfo = [];
-		this.dom_slides = null;
-		this.dom_net = null;
-		this.dom_prev = null;
-		this.dom_next = null;
-		this.dom_spin = null;
+		SELF.currentSlide = 0;
+		SELF.currentInfo = null;
+		SELF.imageData = [];
+		SELF.imageInfo = [];
+		SELF.dom_slides = null;
+		SELF.dom_net = null;
+		SELF.dom_prev = null;
+		SELF.dom_next = null;
+		SELF.dom_spin = null;
 	}
 
 };
