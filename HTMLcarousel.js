@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.7
+ *  1.8
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -13,43 +13,36 @@
 function Carousel(){}
 
 Carousel.prototype = {
-	debug: true,
-	loop: true,
+	debug: true,						// VERBOSE MODE
+	mode: 1,							// 0: FADE | 1: SLIDE | 2: LEAF | 3: SCREENFLOW
+	loop: true,							// INFINITE/CIRCULAR SLIDE NAVIGATION
+	slide: 'cover',						// IMAGE FIT TO FRAME (CSS background-size)
+	clickable: true,					// FIRE callback_slideClick ON MAIN IMAGE CLICK
+	arrows: {
+		size: 64,						// SIZE OF ARROWS
+		margin: 0						// MARGIN OF ARROWS FROM EDGES
+	},
+	screenflow: {
+		autostyle: true, 				// AUTO STYLING. IF SET TO FALSE, NONE OF THE VALUES IN THIS OBJECT WILL BE APPLIED
+		width: null,					// MAIN IMAGE WIDTH
+		height: null,					// MAIN IMAGE HEIGHT
+		overlap: null,					// DISTANCE BETWEEN CENTER AND SECONDARY IMAGES
+		scale: null,					// SCALE STEP FOR SECONDARY & TERTIARY IMAGES
+		fade: null						// OPACITY FOR SECONDARY IMAGES
+	},
+
+	// COLORS
+	colors_bg: '#000',					// CONTAINER BACKGROUND COLOR
+	colors_prev: '#FFF',				// PREV ARROW COLOR
+	colors_next: '#FFF',				// NEXT ARROW COLOR
+	colors_spin: '#FFF',				// SPINNER COLOR
+	colors_spin_bg: 'rgba(0,0,0,0.4)',	// SPINNER BG FRAME
+
+	active_delay: 500,
+
+	// READ ONLY
 	currentSlide: 0,
 	currentInfo: null,
-	clickable: true,
-	mode: 1,
-	screenflow: {
-		width: null,
-		height: null,
-		smaller: null,
-		buffer: -30,
-		fade: 0.7,
-		autostyle: true
-	},
-	active: true,
-	arrows: {
-		size: 64,
-		margin: 0
-	},
-	slide: 'cover',
-	ismobile: null,
-	desktopAgents: [
-		'desktop'
-	],
-
-	svg: {
-		prev: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M30.844 14.813l-9.188 9.188 9.188 9.188-2.813 2.813-12-12 12-12z"></path></svg>',
-		next: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M19.969 12l12 12-12 12-2.813-2.813 9.188-9.188-9.188-9.188z"></path></svg>',
-		spin: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><path d="M16 0c-8.711 0-15.796 6.961-15.995 15.624 0.185-7.558 5.932-13.624 12.995-13.624 7.18 0 13 6.268 13 14 0 1.657 1.343 3 3 3s3-1.343 3-3c0-8.837-7.163-16-16-16zM16 32c8.711 0 15.796-6.961 15.995-15.624-0.185 7.558-5.932 13.624-12.995 13.624-7.18 0-13-6.268-13-14 0-1.657-1.343-3-3-3s-3 1.343-3 3c0 8.837 7.163 16 16 16z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" begin="0" dur="1s" repeatCount="indefinite" /></path></svg>'
-	},
-
-	colors_container: '#000',
-	colors_prev: '#FFF',
-	colors_next: '#FFF',
-	colors_spin: '#FFF',
-	colors_net: 'rgba(0,0,0,0.3)',
-	colors_bg: 'rgba(0,0,0,0.4)',
 
 	dom_container: null,
 	dom_slides: null,
@@ -57,8 +50,6 @@ Carousel.prototype = {
 	dom_prev: null,
 	dom_next: null,
 	dom_spin: null,
-
-	// control_registry: [],
 	imageData: [],
 	imageInfo: [],
 	dom_index: {
@@ -67,7 +58,16 @@ Carousel.prototype = {
 		next: null
 	},
 	movement: null,
-	active_delay: 500,
+	svg: {
+		prev: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M30.844 14.813l-9.188 9.188 9.188 9.188-2.813 2.813-12-12 12-12z"></path></svg>',
+		next: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M19.969 12l12 12-12 12-2.813-2.813 9.188-9.188-9.188-9.188z"></path></svg>',
+		spin: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><path d="M16 0c-8.711 0-15.796 6.961-15.995 15.624 0.185-7.558 5.932-13.624 12.995-13.624 7.18 0 13 6.268 13 14 0 1.657 1.343 3 3 3s3-1.343 3-3c0-8.837-7.163-16-16-16zM16 32c8.711 0 15.796-6.961 15.995-15.624-0.185 7.558-5.932 13.624-12.995 13.624-7.18 0-13-6.268-13-14 0-1.657-1.343-3-3-3s-3 1.343-3 3c0 8.837 7.163 16 16 16z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" begin="0" dur="1s" repeatCount="indefinite" /></path></svg>'
+	},
+	ismobile: null,
+	desktopAgents: [
+		'desktop'
+	],
+	active: true,
 
 	checkForMobile: function() {
 		const SELF = this;
@@ -99,6 +99,8 @@ Carousel.prototype = {
 		SELF.dom_prev.getElementsByTagName('path')[0].style.fill = SELF.colors_prev;
 		SELF.dom_prev.getElementsByTagName('svg')[0].style.height = SELF.arrows.size;
 		SELF.dom_prev.getElementsByTagName('svg')[0].style.width = SELF.arrows.size;
+		SELF.setVendor(SELF.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
+		
 	},
 
 	dom_template_next: function() {
@@ -108,12 +110,13 @@ Carousel.prototype = {
 		SELF.dom_next.getElementsByTagName('path')[0].style.fill = SELF.colors_next;
 		SELF.dom_next.getElementsByTagName('svg')[0].style.height = SELF.arrows.size;
 		SELF.dom_next.getElementsByTagName('svg')[0].style.width = SELF.arrows.size;
+		SELF.setVendor(SELF.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
 	},
 
 	dom_template_spin: function() {
 		const SELF = this;
 		SELF.dom_spin = document.createElement('div');
-		SELF.dom_spin.style.backgroundColor = SELF.colors_bg;
+		SELF.dom_spin.style.backgroundColor = SELF.colors_spin_bg;
 		SELF.setVendor(SELF.dom_spin, 'borderRadius', '32px');
 		SELF.dom_spin.innerHTML = SELF.svg.spin;
 		SELF.dom_spin.style.padding = '5px';
@@ -179,7 +182,7 @@ Carousel.prototype = {
 			SELF.dom_container.style.position = 'relative';
 		}
 
-		SELF.dom_container.style.backgroundColor = SELF.colors_container;
+		SELF.dom_container.style.backgroundColor = SELF.colors_bg;
 		SELF.dom_container.style.overflow = 'hidden';
 
 		if( document.defaultView && document.defaultView.getComputedStyle ) {
@@ -206,7 +209,6 @@ Carousel.prototype = {
 		SELF.dom_slides.style.display = 'block';
 		SELF.dom_slides.style.zIndex = SELF.zindex + 1;
 		SELF.dom_container.appendChild(SELF.dom_slides);
-
 
 		SELF.dom_template_prev();
 		SELF.addClass(SELF.dom_prev, 'cbtn');
@@ -248,19 +250,6 @@ Carousel.prototype = {
 		};
 		SELF.dom_container.appendChild(SELF.dom_next);
 
-		// SELF.dom_net = document.createElement('div');
-		// SELF.dom_net.style.position = 'absolute';
-		// SELF.dom_net.style.display = 'block';
-		// SELF.dom_net.style.display = 'none';
-		// SELF.dom_net.style.width = '100%';
-		// SELF.dom_net.style.height = '100%';
-		// SELF.dom_net.style.top = '0';
-		// SELF.dom_net.style.left = '0';
-		// SELF.dom_net.style.backgroundColor = SELF.colors_net;
-		// SELF.dom_net.style.opacity = 0;
-		// SELF.dom_net.style.zIndex = SELF.zindex + 7;
-		// SELF.dom_container.appendChild(SELF.dom_net);
-
 		SELF.dom_template_spin();
 		SELF.addClass(SELF.dom_spin, 'spin');
 		SELF.dom_spin.style.zIndex = SELF.zindex + 8;
@@ -276,12 +265,6 @@ Carousel.prototype = {
 			SELF.setVendor(SELF.dom_prev, 'Transition', 'all 0.3s ease-In');
 			SELF.setVendor(SELF.dom_next, 'Transition', 'all 0.3s ease-In');
 			SELF.setVendor(SELF.dom_spin, 'Transition', 'all 0.3s ease-In');
-
-			// SELF.setVendor(SELF.dom_net, 'Transition', 'all 0.3s ease-In');			
-
-			SELF.setVendor(SELF.dom_prev, 'Filter', 'drop-shadow( 1px 1px 1px rgba(0,0,0,0.5) )');
-			SELF.setVendor(SELF.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
-			// SELF.setVendor(SELF.dom_spin, 'Filter', 'drop-shadow( 0px 1px 1px rgba(0,0,0,0.5) )');
 
 			SELF.active = false;
 			SELF.wait(1);
@@ -304,7 +287,7 @@ Carousel.prototype = {
 
 			SELF.trace(SELF.currentSlide);
 
-			SELF.callback_prev();
+			SELF.callback_slidePrev();
 		}
 	},
 
@@ -323,7 +306,7 @@ Carousel.prototype = {
 
 			SELF.trace(SELF.currentSlide);
 
-			SELF.callback_next();
+			SELF.callback_slideNext();
 		}
 	},
 
@@ -427,7 +410,7 @@ Carousel.prototype = {
 		SELF.load(preload, function(){
 
 			SELF.wait(0);
-			SELF.callback_show();
+			SELF.callback_slideShow();
 
 			let slide_next = (SELF.dom_index.next) ? SELF.dom_index.next : null;
 			let slide_prev = (SELF.dom_index.prev) ? SELF.dom_index.prev : null;
@@ -439,12 +422,14 @@ Carousel.prototype = {
 			let mW;
 			let mH;
 			let x_center;
-			let p_smaller;
+			let p_small;
 			let p_xsmall;
 			let x_left;
 			let x_right;
 			let xx_left;
 			let xx_right;
+			let bufferOffset
+			let bufferVal
 
 			if( SELF.mode === 3 && ( slide_next || slide_now || slide_prev ) ) {
 				num = (dir === 'left') ? 0 : 2;
@@ -520,7 +505,7 @@ Carousel.prototype = {
 					}
 				break;
 				case 2:
-					// REVEAL
+					// LEAF
 
 					to = (dir === 'left') ? SELF.dom_container.offsetWidth : SELF.dom_container.offsetWidth * -1;
 					from = (dir === 'left') ? SELF.dom_container.offsetWidth * -1 : SELF.dom_container.offsetWidth;
@@ -552,9 +537,9 @@ Carousel.prototype = {
 					mW = ( SELF.screenflow.width ) ? SELF.screenflow.width : SELF.dom_container.offsetHeight;
 					mH = ( SELF.screenflow.height ) ? SELF.screenflow.height : SELF.dom_container.offsetHeight;
 					x_center = ( SELF.dom_container.offsetWidth - mW ) / 2;
-					p_smaller = ( SELF.screenflow.smaller ) ? SELF.screenflow.smaller : 0.7;
-					p_xsmall = ( SELF.screenflow.smaller ) ? SELF.screenflow.smaller * SELF.screenflow.smaller : (0.7 * 0.7) ;
-
+					p_small = SELF.screenflow.scale ? SELF.screenflow.scale : 0.7;
+					p_xsmall = Math.pow(p_small, 2);
+					bufferVal = SELF.screenflow.overlap ? SELF.screenflow.overlap : 0;
 
 					if(SELF.screenflow.autostyle) {
 						slide.style.width = mW + 'px';
@@ -566,8 +551,8 @@ Carousel.prototype = {
 
 						x_left = slide_prev.offsetLeft;
 						x_right = slide_next.offsetLeft;
-						xx_left = slide_prev.offsetLeft - mW*p_smaller;
-						xx_right = slide_next.offsetLeft + mW*p_smaller;
+						xx_left = slide_prev.offsetLeft - mW*p_small;
+						xx_right = slide_next.offsetLeft + mW*p_small;
 
 						parent.appendChild(slide);
 
@@ -617,16 +602,16 @@ Carousel.prototype = {
 									SELF.setVendor(slide_next, 'Transform', 'scale('+p_xsmall+')');
 
 									slide_now.style.left = x_right + 'px';
-									slide_now.style.opacity = SELF.screenflow.fade;
-									SELF.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+									slide_now.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
+									SELF.setVendor(slide_now, 'Transform', 'scale('+p_small+')');
 
 									slide_prev.style.left = x_center + 'px';
 									slide_prev.style.opacity = 1;
 									SELF.setVendor(slide_prev, 'Transform', 'scale(1.0)');
 
 									slide.style.left = x_left + 'px';
-									slide.style.opacity = SELF.screenflow.fade;
-									SELF.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+									slide.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
+									SELF.setVendor(slide, 'Transform', 'scale('+p_small+')');
 								}
 
 								setTimeout(function(){
@@ -655,20 +640,20 @@ Carousel.prototype = {
 
 								if(SELF.screenflow.autostyle) {
 									slide_prev.style.left = xx_left + 'px';
-									slide_next.style.opacity = 0;
+									slide_prev.style.opacity = 0;
 									SELF.setVendor(slide_prev, 'Transform', 'scale('+p_xsmall+')');
 
 									slide_now.style.left = x_left + 'px';
-									slide_now.style.opacity = SELF.screenflow.fade;
-									SELF.setVendor(slide_now, 'Transform', 'scale('+p_smaller+')');
+									slide_now.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
+									SELF.setVendor(slide_now, 'Transform', 'scale('+p_small+')');
 
 									slide_next.style.left = x_center + 'px';
 									slide_next.style.opacity = 1;
 									SELF.setVendor(slide_next, 'Transform', 'scale(1.0)');
 
 									slide.style.left = x_right + 'px';
-									slide.style.opacity = SELF.screenflow.fade;
-									SELF.setVendor(slide, 'Transform', 'scale('+p_smaller+')');
+									slide.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
+									SELF.setVendor(slide, 'Transform', 'scale('+p_small+')');
 								}
 
 								setTimeout(function(){
@@ -707,7 +692,7 @@ Carousel.prototype = {
 								left.style.width = mW + 'px';
 								left.style.height = mH + 'px';
 								left.style.backgroundSize = SELF.slide;
-								SELF.setVendor(left, 'Transform', 'scale('+p_smaller+')');
+								SELF.setVendor(left, 'Transform', 'scale('+p_small+')');
 							}
 							left.className = 'slide secondary hide left screenflow';
 							SELF.setVendor(left, 'Transition', 'all 0.3s ease-In');
@@ -724,15 +709,17 @@ Carousel.prototype = {
 								right.style.width = mW + 'px';
 								right.style.height = mH + 'px';
 								right.style.backgroundSize = SELF.slide;
-								SELF.setVendor(right, 'Transform', 'scale('+p_smaller+')');
+								SELF.setVendor(right, 'Transform', 'scale('+p_small+')');
 							}
 							right.className = 'slide secondary hide right screenflow';
 							SELF.setVendor(right, 'Transition', 'all 0.3s ease-In');
 							
 							parent.appendChild(right);
 
-						x_left = x_center - ( left.offsetWidth + SELF.screenflow.buffer );
-						x_right = x_center + mW + SELF.screenflow.buffer;
+						bufferOffset = ( ( left.offsetWidth - ( left.offsetWidth * p_small ) ) / 2 );
+						
+						x_left = x_center - ( left.offsetWidth + bufferVal - bufferOffset);
+						x_right = x_center + mW + bufferVal - bufferOffset;
 
 						if(SELF.screenflow.autostyle) {
 							left.style.left = x_left + 'px';
@@ -750,8 +737,8 @@ Carousel.prototype = {
 							
 							if(SELF.screenflow.autostyle) {
 								slide.style.opacity = 1;
-								left.style.opacity = SELF.screenflow.fade;
-								right.style.opacity = SELF.screenflow.fade;
+								left.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
+								right.style.opacity = SELF.screenflow.fade ? SELF.screenflow.fade : 0.7;
 							}
 							SELF.dom_index.now = slide;
 							SELF.dom_index.prev = left;
@@ -814,7 +801,7 @@ Carousel.prototype = {
 			}
 			SELF.dom_index.now.onclick = function() {
 				if(SELF.clickable && SELF.active) {
-					SELF.callback_click();
+					SELF.callback_slideClick();
 				}
 			};
 		} else {
@@ -823,30 +810,30 @@ Carousel.prototype = {
 			}
 			SELF.dom_index.next.onclick = function() {
 				if(SELF.clickable && SELF.active) {
-					SELF.callback_click();
+					SELF.callback_slideClick();
 				}
 			};
 		}
 	},
 
-	callback_prev: function() {
+	callback_slidePrev: function() {
 		const SELF = this;
-			  SELF.trace('callback_prev');
+			  SELF.trace('------------------ callback_slidePrev');
 	},
 
-	callback_next: function() {
+	callback_slideNext: function() {
 		const SELF = this;
-			  SELF.trace('callback_next');
+			  SELF.trace('------------------ callback_slideNext');
 	},
 
-	callback_show: function() {
+	callback_slideShow: function() {
 		const SELF = this;
-			  SELF.trace('callback_show');
+			  SELF.trace('------------------ callback_slideShow');
 	},
 
-	callback_click: function() {
+	callback_slideClick: function() {
 		const SELF = this;
-			  SELF.trace('callback_click');
+			  SELF.trace('------------------ callback_slideClick');
 	},
 
 	toggle: function(obj, bool) {
@@ -1075,7 +1062,6 @@ Carousel.prototype = {
 				}
 			}
 			handleswipe(swipedir);
-			// e.preventDefault()
 		}, false);
 	},
 

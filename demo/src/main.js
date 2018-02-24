@@ -1,6 +1,9 @@
-// @codekit-prepend "../../device.js"
-
 var images = [
+	{
+		src: "https://c1.staticflickr.com/5/4758/26294215758_677bf9b965_o.jpg",
+		title: "Grand Seiko Snowflake (SBGA211)",
+		url: "https://www.grand-seiko.com/collections/SBGA211"
+	},
 	{
 		src: "https://farm9.staticflickr.com/8612/27669850714_79a89c35c5_o.jpg",
 		title: "Huckleberry & Co. Atticus",
@@ -39,7 +42,7 @@ var images = [
 	{
 		src: "https://farm1.staticflickr.com/557/20000385931_4fdc223e2f_o.jpg",
 		title: "Apple Watch",
-		url: "http://www.apple.com/shop/buy-watch/apple-watch"
+		url: "https://www.apple.com/shop/buy-watch/apple-watch"
 	},
 	{
 		src: "https://farm9.staticflickr.com/8864/18230308095_c2e85ac103_o.jpg",
@@ -113,8 +116,8 @@ function init(){
 		slide: slideshow.slide
 	};
 
-	slideshow.debug = true;
-	slideshow.mode = 0;
+	slideshow.debug = false;
+	slideshow.mode = 3;
 	slideshow.loop = true;
 	slideshow.clickable = true;
 	slideshow.arrows = {
@@ -122,19 +125,20 @@ function init(){
 		margin: -20
 	};
 	slideshow.screenflow = {
-		width: 500,
-		height: 500,
-		buffer: -100,
-		smaller: 0.7,
-		fade: 0.7,
-		autostyle: false
+		autostyle: false,
+		width: 320,
+		height: 240,
+		overlap: -20,
+		scale: 0.5,
+		fade: 0.7
 	};
 
-	slideshow.callback_show = function() {
+	slideshow.callback_slideShow = function() {
 		console.log( slideshow.currentInfo );
+		$('#infowindow').text(slideshow.currentInfo.title)
 	};
 
-	slideshow.callback_click = function() {
+	slideshow.callback_slideClick = function() {
 		window.open( slideshow.currentInfo.url );
 	};
 

@@ -87,3 +87,17 @@ body {
   text-align: center; }
   #triggers i {
     margin: 10px; }
+
+#infowindow {
+  font-size: 2em;
+  padding: 10px;
+  top: 0;
+  left: 50%;
+  text-align: center;
+  margin-top: 20px;
+  margin-left: -450px;
+  display: block;
+  width: 900px;
+  position: absolute;
+  z-index: 100;
+  background-color: rgba(255, 255, 255, 0.8); }
