@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  1.8
+ *  1.9
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -39,6 +39,7 @@ Carousel.prototype = {
 	colors_spin_bg: 'rgba(0,0,0,0.4)',	// SPINNER BG FRAME
 
 	active_delay: 500,
+	dom_debug: null,					// ASSIGN THIS TO A DIV IF YOU WANT CONSOLE LOGS IN HTML (USEFUL FOR MOBILE)
 
 	// READ ONLY
 	currentSlide: 0,
@@ -64,35 +65,41 @@ Carousel.prototype = {
 		spin: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><path d="M16 0c-8.711 0-15.796 6.961-15.995 15.624 0.185-7.558 5.932-13.624 12.995-13.624 7.18 0 13 6.268 13 14 0 1.657 1.343 3 3 3s3-1.343 3-3c0-8.837-7.163-16-16-16zM16 32c8.711 0 15.796-6.961 15.995-15.624-0.185 7.558-5.932 13.624-12.995 13.624-7.18 0-13-6.268-13-14 0-1.657-1.343-3-3-3s-3 1.343-3 3c0 8.837 7.163 16 16 16z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" begin="0" dur="1s" repeatCount="indefinite" /></path></svg>'
 	},
 	ismobile: null,
-	desktopAgents: [
-		'desktop'
-	],
 	active: true,
 
-	checkForMobile: function() {
+	checkForMobile() {
 		const SELF = this;
+		const DESKTOP_AGENTS = [
+	        'desktop'
+	    ];
 
-		let mobileFlag = true;
+	    let mobileFlag = true;
 
-		for (let i = 0; i < SELF.desktopAgents.length; i++) {
-			let regex;
-				regex = new RegExp(SELF.desktopAgents[i], 'i');
+	    if(typeof device !== 'undefined') {
+	        // USE DEVICEJS IF AVAILABLE
+	        for (let i = 0; i < DESKTOP_AGENTS.length; i++) {
+	            let regex;
+	                regex = new RegExp(DESKTOP_AGENTS[i], 'i');
 
-			if( window.document.documentElement.className.match(regex) ) {
-				mobileFlag = false;
-			}
-		}
+	            if( window.document.documentElement.className.match(regex) ) {
+	                mobileFlag = false;
+	            }
+	        }
+	    } else {
+	        // BACKUP [RUDIMENTARY] DETECTION
+	        mobileFlag = 'ontouchstart' in window;
+	    }
 
-		if( mobileFlag ) {
-			SELF.ismobile = true;
-			SELF.trace('mobile browser detected');
-		} else {
-			SELF.ismobile = false;
-			SELF.trace('desktop browser detected');
-		}
+	    if( mobileFlag ) {
+	        SELF.ismobile = true;
+	        SELF.trace("mobile browser detected");
+	    } else {
+	        SELF.ismobile = false;
+	        SELF.trace("desktop browser detected");
+	    }
 	},
 
-	dom_template_prev: function() {
+	dom_template_prev() {
 		const SELF = this;
 		SELF.dom_prev = document.createElement('div');
 		SELF.dom_prev.innerHTML = SELF.svg.prev;
@@ -103,7 +110,7 @@ Carousel.prototype = {
 		
 	},
 
-	dom_template_next: function() {
+	dom_template_next() {
 		const SELF = this;
 		SELF.dom_next = document.createElement('div');
 		SELF.dom_next.innerHTML = SELF.svg.next;
@@ -113,7 +120,7 @@ Carousel.prototype = {
 		SELF.setVendor(SELF.dom_next, 'Filter', 'drop-shadow( -1px 1px 1px rgba(0,0,0,0.5) )');
 	},
 
-	dom_template_spin: function() {
+	dom_template_spin() {
 		const SELF = this;
 		SELF.dom_spin = document.createElement('div');
 		SELF.dom_spin.style.backgroundColor = SELF.colors_spin_bg;
@@ -125,22 +132,35 @@ Carousel.prototype = {
 		SELF.dom_spin.getElementsByTagName('path')[0].style.fill = SELF.colors_spin;
 	},
 
-	init: function(obj, imgarray, infoarray) {
+	// init(obj, imgarray, infoarray) {
+	init(obj, data) {
 		const SELF = this;
-		
-		for(let p in imgarray) {
-			SELF.imageData.push(imgarray[p]);
+
+		// HANDLE INPUT DATA
+
+		let imgarray = [];
+		let infoarray = [];
+
+		if( typeof data[0] == 'string' ) {
+			for(let p in data) {
+				SELF.imageData.push(data[p]);
+			}
+		}
+		else {
+			for(let p in data) {
+				SELF.imageData.push(data[p].src);
+				SELF.imageInfo.push(data[p].info);
+			}
+		} 
+
+		if(SELF.imageData.length < 2) {
+			alert('ABORTING INITIALIZATION:\nYou\'ll need at least two images else this slideshow is pointless');
+			return;
 		}
 
 		if(SELF.mode === 3 && SELF.imageData.length < 3) {
 			alert('You need at least three imageData for mode 3. Switching to default (1)');
 			SELF.mode = 1;
-		}
-
-		if(infoarray) {
-			for(let q in infoarray) {
-				SELF.imageInfo.push(infoarray[q]);
-			}
 		}
 
 		if(SELF.ismobile === null) { SELF.checkForMobile(); }
@@ -272,7 +292,7 @@ Carousel.prototype = {
 		}, 600);
 	},
 
-	prevSlide: function() {
+	prevSlide() {
 		const SELF = this;
 
 		// SELF.movement = 'left';
@@ -291,7 +311,7 @@ Carousel.prototype = {
 		}
 	},
 
-	nextSlide: function() {
+	nextSlide() {
 		const SELF = this;
 
 		// SELF.movement = 'right';
@@ -310,7 +330,7 @@ Carousel.prototype = {
 		}
 	},
 
-	checkEdges: function() {
+	checkEdges() {
 		const SELF = this;
 
 		SELF.trace('loop: '+SELF.loop);
@@ -334,7 +354,7 @@ Carousel.prototype = {
 
 	},
 
-	loadSlide: function(number, bool) {
+	loadSlide(number, bool) {
 		const SELF = this;
 		
 		let num = number+1;
@@ -777,7 +797,7 @@ Carousel.prototype = {
 
 	},
 
-	assignClicks: function() {
+	assignClicks() {
 		const SELF = this;
 
 		if(SELF.mode === 3) {
@@ -816,27 +836,27 @@ Carousel.prototype = {
 		}
 	},
 
-	callback_slidePrev: function() {
+	callback_slidePrev() {
 		const SELF = this;
 			  SELF.trace('------------------ callback_slidePrev');
 	},
 
-	callback_slideNext: function() {
+	callback_slideNext() {
 		const SELF = this;
 			  SELF.trace('------------------ callback_slideNext');
 	},
 
-	callback_slideShow: function() {
+	callback_slideShow() {
 		const SELF = this;
 			  SELF.trace('------------------ callback_slideShow');
 	},
 
-	callback_slideClick: function() {
+	callback_slideClick() {
 		const SELF = this;
 			  SELF.trace('------------------ callback_slideClick');
 	},
 
-	toggle: function(obj, bool) {
+	toggle(obj, bool) {
 		const SELF = this;
 
 		if(bool) {
@@ -853,7 +873,7 @@ Carousel.prototype = {
 		}
 	},
 
-	wait: function(bool) {
+	wait(bool) {
 		const SELF = this;
 			  SELF.active = false;
 
@@ -867,13 +887,13 @@ Carousel.prototype = {
 
 	},
 
-	get: function(str) {
+	get(str) {
 		const SELF = this;
 
 		return document.querySelector(str);
 	},
 
-	reflow: function() {
+	reflow() {
 		const SELF = this;
 
 		SELF.dom_spin.style.top = '50%';
@@ -890,7 +910,7 @@ Carousel.prototype = {
 		SELF.dom_next.style.right = SELF.arrows.margin+'px';
 	},
 
-	setVendor: function(element, property, value) {
+	setVendor(element, property, value) {
 		const SELF = this;
 		
 		let styles = window.getComputedStyle(element, '');
@@ -904,7 +924,7 @@ Carousel.prototype = {
 	
 	},
 	loadedFiles: [],
-	isLoaded: function (file, array) {
+	isLoaded (file, array) {
 		const SELF = this;
 
         for(let i = 0; i < array.length; i++)
@@ -916,7 +936,7 @@ Carousel.prototype = {
         }
         return false;
     },
-	load: function(arg, callback) {
+	load(arg, callback) {
 		const SELF = this;
 
 		switch(typeof arg)
@@ -964,7 +984,7 @@ Carousel.prototype = {
 		}
 	},
 
-	arrayRotate: function(arr, reverse){
+	arrayRotate(arr, reverse){
 		const SELF = this;
 
 		if(reverse) {
@@ -982,7 +1002,7 @@ Carousel.prototype = {
 		return arr;
 	},
 
-	trace: function(str) {
+	trace(str) {
 		const SELF = this;
 
 		if(SELF.debug) {
@@ -997,7 +1017,7 @@ Carousel.prototype = {
 		}
 	},
 
-	addClass: function(el, className) {
+	addClass(el, className) {
 		const SELF = this;
 
 		if (el.classList) {
@@ -1007,7 +1027,7 @@ Carousel.prototype = {
 		}
 	},
 
-	removeClass: function(el, className) {
+	removeClass(el, className) {
 		const SELF = this;
 
 		if (el.classList) {
@@ -1017,7 +1037,7 @@ Carousel.prototype = {
 		}
 	},
 
-	swipedetect: function(el, callback){
+	swipedetect(el, callback){
 		const SELF = this;
 
 		let touchsurface = el;
@@ -1065,7 +1085,7 @@ Carousel.prototype = {
 		}, false);
 	},
 
-	destroy: function() {
+	destroy() {
 		const SELF = this;
 
 		SELF.dom_container.innerHTML = '';
