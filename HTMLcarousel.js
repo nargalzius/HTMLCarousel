@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  2.0
+ *  2.1
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -66,6 +66,7 @@ Carousel.prototype = {
     },
     ismobile: null,
     active: true,
+    ready: false,
 
     checkForMobile() {
         const DESKTOP_AGENTS = [
@@ -165,19 +166,23 @@ Carousel.prototype = {
                 switch(e) {
                     case 'left':
                         this.nextSlide();
+                        this.callback_swipeLeft();
                     break;
                     case 'right':
                         this.prevSlide();
+                        this.callback_swipeRight();
                     break;
                     case 'up':
                         if(this.mode === 0) {
                             this.nextSlide();
                         }
+                        this.callback_swipeUp();
                     break;
                     case 'down':
                         if(this.mode === 0) {
                             this.prevSlide();
                         }
+                        this.callback_swipeDown();
                     break;
                 }
             });
@@ -236,6 +241,8 @@ Carousel.prototype = {
             }, 300);
 
             this.prevSlide();
+
+            this.callback_clickPrev();
         };
         this.dom_container.appendChild(this.dom_prev);
 
@@ -256,6 +263,8 @@ Carousel.prototype = {
             }, 300);
 
             this.nextSlide();
+
+            this.callback_clickNext();
         };
         this.dom_container.appendChild(this.dom_next);
 
@@ -398,21 +407,34 @@ Carousel.prototype = {
         }
 
         if(this.imageInfo.length) {
+
             this.currentInfo = this.imageInfo[1];
 
-            if(this.imageInfo[1].preload)
-                preload = limage.concat(this.imageInfo[1].preload)
-            else
-                preload = limage;
+            if(this.currentInfo.preload) {
+                let pl = this.currentInfo.preload;
+
+                if(pl === 'object' )
+                    if( this.imageInfo[1].preload.constructor === Array ) {
+                        for( let i = 0; i < pl.length; i++)
+                            limage.push(pl[i]);
+                } else {
+                    limage.push(pl)
+                }
+            }
         }
-        else
-            preload = limage;
+        
+        preload = limage;
 
         this.trace(preload);
 
         this.load(preload, () => {
 
             this.wait(0);
+            if(!this.ready) {
+                this.callback_slideReady();
+                this.ready = true;
+            }
+
             this.callback_slideShow();
 
             let slide_next = (this.dom_index.next) ? this.dom_index.next : null;
@@ -818,21 +840,17 @@ Carousel.prototype = {
         }
     },
 
-    callback_slidePrev() {
-              this.trace('------------------ callback_slidePrev');
-    },
-
-    callback_slideNext() {
-              this.trace('------------------ callback_slideNext');
-    },
-
-    callback_slideShow() {
-              this.trace('------------------ callback_slideShow');
-    },
-
-    callback_slideClick() {
-              this.trace('------------------ callback_slideClick');
-    },
+    callback_slideReady() { this.trace('------------------ callback_slideReady'); },
+    callback_slideShow()  { this.trace('------------------ callback_slideShow');  },
+    callback_slidePrev()  { this.trace('------------------ callback_slidePrev');  },
+    callback_slideNext()  { this.trace('------------------ callback_slideNext');  },
+    callback_slideClick() { this.trace('------------------ callback_slideClick'); },
+    callback_clickPrev()  { this.trace('------------------ callback_clickPrev');  },
+    callback_clickNext()  { this.trace('------------------ callback_clickNext');  },
+    callback_swipeLeft()  { this.trace('------------------ callback_swipeLeft');  },
+    callback_swipeRight() { this.trace('------------------ callback_swipeRight'); },
+    callback_swipeUp()    { this.trace('------------------ callback_swipeUp');    },
+    callback_swipeDown()  { this.trace('------------------ callback_swipeDown');  },
 
     toggle(obj, bool) {
 
@@ -1069,6 +1087,7 @@ Carousel.prototype = {
         this.dom_prev = null;
         this.dom_next = null;
         this.dom_spin = null;
+        this.ready = false;
     }
 
 };
