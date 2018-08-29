@@ -1,7 +1,7 @@
 /*!
  *  HTML IMAGE CAROUSEL
  *
- *  2.1
+ *  2.2
  *
  *  author: Carlo J. Santos
  *  email: carlosantos@gmail.com
@@ -62,7 +62,7 @@ Carousel.prototype = {
     svg: {
         prev: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M30.844 14.813l-9.188 9.188 9.188 9.188-2.813 2.813-12-12 12-12z"></path></svg>',
         next: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48"><path d="M19.969 12l12 12-12 12-2.813-2.813 9.188-9.188-9.188-9.188z"></path></svg>',
-        spin: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32"><path d="M16 0c-8.711 0-15.796 6.961-15.995 15.624 0.185-7.558 5.932-13.624 12.995-13.624 7.18 0 13 6.268 13 14 0 1.657 1.343 3 3 3s3-1.343 3-3c0-8.837-7.163-16-16-16zM16 32c8.711 0 15.796-6.961 15.995-15.624-0.185 7.558-5.932 13.624-12.995 13.624-7.18 0-13-6.268-13-14 0-1.657-1.343-3-3-3s-3 1.343-3 3c0 8.837 7.163 16 16 16z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" begin="0" dur="1s" repeatCount="indefinite" /></path></svg>'
+        spin: '<svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#fff"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle stroke-opacity=".5" cx="18" cy="18" r="18"/><path d="M36 18c0-9.94-8.06-18-18-18"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/></path></g></g></svg>'
     },
     ismobile: null,
     active: true,
@@ -120,13 +120,9 @@ Carousel.prototype = {
 
     dom_template_spin() {
         this.dom_spin = document.createElement('div');
-        this.dom_spin.style.backgroundColor = this.colors_spin_bg;
-        this.setVendor(this.dom_spin, 'borderRadius', '32px');
         this.dom_spin.innerHTML = this.svg.spin;
-        this.dom_spin.style.padding = '5px';
-        this.dom_spin.style.width = '32px';
-        this.dom_spin.style.height = '32px';
-        this.dom_spin.getElementsByTagName('path')[0].style.fill = this.colors_spin;
+        this.dom_spin.style.width = '38px';
+        this.dom_spin.style.height = '38px';
     },
 
     init(obj, data) {

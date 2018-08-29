@@ -7,7 +7,7 @@
 		"uuidString": "433ECC73-5514-40A9-B6C8-7019A5FFA6DA"
 		}
 	],
-"creatorBuild": "26268",
+"creatorBuild": "26680",
 "files": {
 	"\/demo\/public_html\/HTMLcarousel-min.js": {
 		"ft": 64,
@@ -157,7 +157,8 @@
 	"creationDate": 506965977,
 	"displayValue": "HTML Carousel",
 	"displayValueWasSetByUser": 1,
-	"iconImageName": "meme-soon"
+	"iconImageName": "meme-soon",
+	"iconImageWasSetByUser": 0
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
@@ -1960,6 +1961,7 @@
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
 		"autoOutputPathStyle": 0,
+		"outputFormat": 0,
 		"quality": 100
 		},
 	"languageDefaultsJS": {
